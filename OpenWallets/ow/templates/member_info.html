@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% extends 'base.html' %}
+
+{% block title %}의원 상세 정보{% endblock %}
+{% block subtitle %}개인 신상 및 재산 정보{% endblock %}
+
+{% block content %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenWallets - 의원 정보</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4fc;
+    }
+    .main {
+      flex: 1;
+      padding: 2rem;
+    }
+    .profile {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      background-color: #1656a0;
+      border-radius: 10px;
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .profile-info span {
+      font-weight: bold;
+    }
+    .chart {
+      width: 400px;
+      height: 200px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: #e6efff;
+    }
+    .pagination {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .pagination span {
+      display: inline-block;
+      margin: 0 0.25rem;
+      padding: 0.5rem 0.75rem;
+      background-color: #c3dafe;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+    <div class="main">
+      <div class="profile">
+        <div class="profile-img"></div>
+        <div class="profile-info">
+          <div>의원명: <span>강경숙</span></div>
+          <div>대수: <span>21대</span></div>
+          <div>생년월일: <span>1967-05-02</span></div>
+          <div>정당: <span>조국혁신당</span></div>
+          <div>선거구: <span>비례대표</span></div>
+        </div>
+      </div>
+      <div class="chart">
+        <strong>연도별 재산 증감 추이 (억)</strong>
+        <img src="https://via.placeholder.com/400x150?text=연도별+그래프" alt="그래프" style="margin-top: 1rem;">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>연월</th>
+            <th>재산구분</th>
+            <th>관계</th>
+            <th>재산종류</th>
+            <th>상세내용</th>
+            <th>현재가액</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>202408</td>
+            <td>예금</td>
+            <td>배우자</td>
+            <td>-</td>
+            <td>(주)KB손해보험 11,918, DB금융투자 76,107, DB손해보험(주) 718, 농협은행 6,000</td>
+            <td>318,707</td>
+          </tr>
+          <tr>
+            <td>202308</td>
+            <td>예금</td>
+            <td>본인</td>
+            <td>-</td>
+            <td>우리은행 5,000, 신한은행 3,000</td>
+            <td>120,000</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>&laquo;</span>
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>&raquo;</span>
+      </div>
+    </div>
+  </div>
+</body>
+{% endblock %}
+</html>

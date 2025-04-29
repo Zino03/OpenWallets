@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% extends 'base.html' %}
+
+{% block title %}의원 목록{% endblock %}
+{% block subtitle %}전체 의원 정보{% endblock %}
+
+{% block content %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>의원 목록 - OpenWallets</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f3f6fb;
+    }
+    .content {
+      margin-left: 200px;
+      padding: 30px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 {
+      font-size: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: #e3ecfa;
+    }
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .page-btn {
+      padding: 8px 12px;
+      background-color: #e3ecfa;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .filters {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="header">
+      <h1>전체 목록 <small>2025-04-07 기준</small></h1>
+    </div>
+
+    <div class="filters">
+      <button class="page-btn">지역별</button>
+      <button class="page-btn">정렬기준</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>순번</th>
+          <th>대수</th>
+          <th>의원명</th>
+          <th>생년월일</th>
+          <th>정당</th>
+          <th>선거구</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>21대</td>
+          <td><a href="{% url 'member_info' member_id=1 %}">강경숙</a></td>
+          <td>1967-05-02</td>
+          <td>조국혁신당</td>
+          <td>비례대표</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>21대</td>
+          <td>홍길동</td>
+          <td>1970-03-15</td>
+          <td>미래희망당</td>
+          <td>서울 강남갑</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>21대</td>
+          <td>김민정</td>
+          <td>1975-11-20</td>
+          <td>국민의힘</td>
+          <td>대구 중구</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button class="page-btn">«</button>
+      <button class="page-btn">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">»</button>
+    </div>
+  </div>
+</body>
+{% endblock %}
+</html>

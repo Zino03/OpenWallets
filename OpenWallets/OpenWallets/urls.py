@@ -19,6 +19,7 @@ from django.urls import path
 from ow import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index) # '/'으로 접속하면 views.py의 index함수 실행
+    path('', views.main_page, name="main"),
+    path('members/', views.member_list, name="member_list") ,
+    path('members/<int:member_id>/', views.member_info, name='member_info'),
 ]

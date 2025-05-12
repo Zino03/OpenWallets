@@ -83,40 +83,38 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <td>21대</td>
-          <td><a href="{% url 'member_info' member_id=1 %}">강경숙</a></td>
-          <td>1967-05-02</td>
-          <td>조국혁신당</td>
-          <td>비례대표</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>21대</td>
-          <td>홍길동</td>
-          <td>1970-03-15</td>
-          <td>미래희망당</td>
-          <td>서울 강남갑</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>21대</td>
-          <td>김민정</td>
-          <td>1975-11-20</td>
-          <td>국민의힘</td>
-          <td>대구 중구</td>
-        </tr>
+        {% for member in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ member.session }}</td>
+                    <td>{{ member.name }}</td>
+                    <td><strong>{{ member.birth_date }}</strong></td>
+                    <td>{{ member.party }}</td>
+                    <td>{{ member.district }}</td>
+                </tr>
+                {% endfor %}
       </tbody>
     </table>
 
     <div class="pagination">
-      <button class="page-btn">«</button>
-      <button class="page-btn">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">»</button>
-    </div>
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo;</a>
+                <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <strong>{{ num }}</strong>
+                {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </div>
   </div>
 </body>
 {% endblock %}

@@ -3,7 +3,7 @@
 {% extends 'base.html' %}
 
 {% block title %}의원 목록{% endblock %}
-{% block subtitle %}전체 의원 정보{% endblock %}
+{% block subtitle %}의원 목록{% endblock %}
 
 {% block content %}
 <head>
@@ -16,17 +16,13 @@
       font-family: 'Arial', sans-serif;
       background-color: #f3f6fb;
     }
-    .content {
-      margin-left: 200px;
-      padding: 30px;
-    }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .header h1 {
-      font-size: 24px;
+      font-size: 20px;
     }
     table {
       width: 100%;
@@ -68,12 +64,11 @@
 <body>
   <div class="content">
     <div class="header">
-      <h1>전체 목록 <small>2025-04-07 기준</small></h1>
+      <h1>의원 목록&emsp;<small>2025-04-07 기준</small></h1>
+      <div class="filters">
+        <button class="page-btn">지역별</button>
+        <button class="page-btn">정렬기준</button>
     </div>
-
-    <div class="filters">
-      <button class="page-btn">지역별</button>
-      <button class="page-btn">정렬기준</button>
     </div>
 
     <table>

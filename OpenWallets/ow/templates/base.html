@@ -10,17 +10,13 @@
 
   <!-- 사이드바 -->
   <div class="flex">
-    <aside class="w-64 h-screen bg-blue-900 text-white p-4">
+    <aside class="w-50 h-screen bg-blue-900 text-white p-4">
       <h1 class="text-2xl font-bold mb-8">OpenWallets</h1>
       <nav class="space-y-4">
-        <a href="" class="block hover:text-blue-300">대시보드</a>
-        <div>
-          <p class="text-sm text-gray-300 mb-1">의원 목록</p>
-          <a href="{% url 'member_list' %}" class="ml-2 block hover:text-blue-300">전체</a>
-          <!-- 향후 지역별, 정당별 경로 추가 가능 -->
-        </div>
-        <a href="#" class="block hover:text-blue-300">API</a>
-        <a href="#" class="block hover:text-blue-300">이용안내</a>
+        <a href="{% url 'main_page' %}" class="block hover:text-blue-300">대시보드</a>
+        <a href="{% url 'member_list' %}" class="block hover:text-blue-300">의원목록</a>
+        <a href="{% url 'api_page' %}" class="block hover:text-blue-300">API</a>
+        <a href="{% url 'guide_page' %}" class="block hover:text-blue-300">이용안내</a>
       </nav>
     </aside>
 

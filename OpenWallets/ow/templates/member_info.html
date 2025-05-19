@@ -15,58 +15,82 @@
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: #f0f4fc;
+      overflow: hidden;
     }
+
     .main {
       flex: 1;
-      padding: 2rem;
+      max-width: 1050px;
+      margin: 0 auto;
     }
+
     .profile {
       display: flex;
       gap: 2rem;
       margin-bottom: 2rem;
+      flex-wrap: wrap;
     }
-    .profile-img {
-      width: 120px;
-      height: 120px;
-      background-color: #1656a0;
-      border-radius: 10px;
-    }
+
     .profile-info {
       display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      justify-content: center;
+      flex: 2;
+      gap: 1.5rem;
+      flex-wrap: wrap;
     }
+
     .profile-info span {
       font-weight: bold;
     }
+
     .chart {
-      width: 400px;
-      height: 200px;
+      flex: 1;
+      min-width: 250px;
       background-color: white;
       border-radius: 10px;
-      padding: 1rem;
+      padding: 10px;
       margin-bottom: 2rem;
     }
-    table {
+
+    .left {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .right {
+      flex: 3;
+      min-width: 300px;
+    }
+
+    .table-container {
+      overflow-x: auto;
       width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    table {
+      min-width: 1200px;
+      width: max-content;
       border-collapse: collapse;
       background-color: white;
       border-radius: 10px;
       overflow: hidden;
     }
+
     th, td {
       padding: 0.75rem;
       border-bottom: 1px solid #ddd;
       text-align: center;
     }
+
     th {
       background-color: #e6efff;
     }
+
     .pagination {
       margin-top: 1rem;
       text-align: center;
     }
+
     .pagination span {
       display: inline-block;
       margin: 0 0.25rem;
@@ -78,21 +102,35 @@
   </style>
 </head>
 <body>
-    <div class="main">
-      <div class="profile">
-        <div class="profile-img"></div>
-        <div class="profile-info">
+  <div class="main">
+    <div class="profile">
+      <div class="profile-info">
+        <div class="left">
           <div>의원명: <span>강경숙</span></div>
+          <div>총 재산: <span>10000</span></div>
+        </div>
+        <div class="right">
           <div>대수: <span>21대</span></div>
-          <div>생년월일: <span>1967-05-02</span></div>
+          <div>한자: <span>---</span></div>
+          <div>생년월일(음력/양력): <span>1967-05-02</span></div>
+          <div>성별: <span>비례대표</span></div>
           <div>정당: <span>조국혁신당</span></div>
           <div>선거구: <span>비례대표</span></div>
+          <div>직책: <span>비례대표</span></div>
+          <div>의원회: <span>비례대표</span></div>
+          <div>의원실 주소: <span>비례대표</span></div>
+          <div>이메일: <span>비례대표</span></div>
+          <div>전화: <span>비례대표</span></div>
+          <div>학력 및 경력 사항: <span>비례대표</span></div>
         </div>
       </div>
       <div class="chart">
         <strong>연도별 재산 증감 추이 (억)</strong>
         <img src="https://via.placeholder.com/400x150?text=연도별+그래프" alt="그래프" style="margin-top: 1rem;">
       </div>
+    </div>
+    
+    <div class="table-container">
       <table>
         <thead>
           <tr>
@@ -100,7 +138,12 @@
             <th>재산구분</th>
             <th>관계</th>
             <th>재산종류</th>
-            <th>상세내용</th>
+            <th>소재지면적 등 권리의 명세</th>
+            <th>종전가액</th>
+            <th>증가액</th>
+            <th>증가액실거래가</th>
+            <th>감소액</th>
+            <th>감소액실거래가</th>
             <th>현재가액</th>
           </tr>
         </thead>
@@ -112,6 +155,11 @@
             <td>-</td>
             <td>(주)KB손해보험 11,918, DB금융투자 76,107, DB손해보험(주) 718, 농협은행 6,000</td>
             <td>318,707</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
           </tr>
           <tr>
             <td>202308</td>
@@ -120,17 +168,23 @@
             <td>-</td>
             <td>우리은행 5,000, 신한은행 3,000</td>
             <td>120,000</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>&laquo;</span>
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-        <span>4</span>
-        <span>&raquo;</span>
-      </div>
+    </div>
+
+    <div class="pagination">
+      <span>&laquo;</span>
+      <span>1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>4</span>
+      <span>&raquo;</span>
     </div>
   </div>
 </body>

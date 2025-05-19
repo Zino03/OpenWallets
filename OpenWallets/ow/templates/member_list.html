@@ -80,6 +80,7 @@
           <th>생년월일</th>
           <th>정당</th>
           <th>선거구</th>
+          <th>총 재산</th>
         </tr>
       </thead>
       <tbody>
@@ -87,10 +88,11 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ member.session }}</td>
-                    <td>{{ member.name }}</td>
+                    <td><a href="{% url 'member_info' member.code %}">{{ member.name }}</a></td>
                     <td><strong>{{ member.birth_date }}</strong></td>
                     <td>{{ member.party }}</td>
-                    <td>{{ member.district }}</td>
+                    <td>{{ member.ward }}</td>
+                    <td>{{ member.sum_price }}</td>
                 </tr>
                 {% endfor %}
       </tbody>

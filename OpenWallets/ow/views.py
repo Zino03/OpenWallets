@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from .models import AssemblyMember
 from datetime import date
-from ow.models import AssemblyMember, AssemblyProperty, Property
+from ow.models import AssemblyMember, Property
 
 # AssemblyMember 저장
 member = AssemblyMember.objects.create(
@@ -15,17 +15,12 @@ member = AssemblyMember.objects.create(
     party="더불어민주당",
     ward="서울 종로구",
     committee="국토교통위원회",
-    number="21",
+    session="21",
     gender=True,  # 남자
     tel="010-1234-5678",
     email="hong@example.com",
     history=["서울시의원", "교육부 장관"],
-    office=["의원회관 123호"]
-)
-
-# AssemblyProperty 저장
-prop = AssemblyProperty.objects.create(
-    code="1234",
+    office=["의원회관 123호"],
     year_month="2024-03",
     pro_classify="본인",
     pro_relationship="본인",
@@ -49,10 +44,10 @@ prop_stats = Property.objects.create(
 )
 
 
-def main_page(request):
+def main_page(request): # 대시보드 (메인 페이지)
     return render(request, 'main_page.html')
 
-def member_list(request):
+def member_list(request): # 의원 목록 페이지
     members = AssemblyMember.objects.all().order_by('id')
     paginator = Paginator(members, 10)  # 한 페이지에 10명
 
@@ -65,12 +60,12 @@ def member_list(request):
         'today': today
     })
 
-def member_info(request, member_id):
+def member_info(request, member_code): # 의원 상세 정보 페이지
     # 여기선 일단 임시 데이터로 구성
-    return render(request, 'member_info.html', {'member_id': member_id})
+    return render(request, 'member_info.html', {'member_code': member_code})
 
-def api_page(request):
+def api_page(request): # api 정보 페이지
     return render(request, 'api_page.html')
 
-def guide_page(request):
+def guide_page(request): # 이용안내
     return render(request, 'guide_page.html')

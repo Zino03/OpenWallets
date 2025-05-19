@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from .models import AssemblyMember
 from datetime import date
@@ -62,7 +62,8 @@ def member_list(request): # 의원 목록 페이지
 
 def member_info(request, member_code): # 의원 상세 정보 페이지
     # 여기선 일단 임시 데이터로 구성
-    return render(request, 'member_info.html', {'member_code': member_code})
+    member = get_object_or_404(AssemblyMember, code=member_code)
+    return render(request, 'member_info.html', {'member': member})
 
 def api_page(request): # api 정보 페이지
     return render(request, 'api_page.html')

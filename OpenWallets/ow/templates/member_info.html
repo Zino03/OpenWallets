@@ -106,22 +106,22 @@
     <div class="profile">
       <div class="profile-info">
         <div class="left">
-          <div>의원명: <span>강경숙</span></div>
-          <div>총 재산: <span>10000</span></div>
+          <div>의원명: <span>{{member.name}}</span></div>
+          <div>총 재산: <span>{{member.sum_price}}</span></div>
         </div>
         <div class="right">
-          <div>대수: <span>21대</span></div>
-          <div>한자: <span>---</span></div>
-          <div>생년월일(음력/양력): <span>1967-05-02</span></div>
-          <div>성별: <span>비례대표</span></div>
-          <div>정당: <span>조국혁신당</span></div>
-          <div>선거구: <span>비례대표</span></div>
-          <div>직책: <span>비례대표</span></div>
-          <div>의원회: <span>비례대표</span></div>
-          <div>의원실 주소: <span>비례대표</span></div>
-          <div>이메일: <span>비례대표</span></div>
-          <div>전화: <span>비례대표</span></div>
-          <div>학력 및 경력 사항: <span>비례대표</span></div>
+          <div>대수: <span>{{member.session}}</span></div>
+          <div>한자: <span>{{member.chinese_name}}</span></div>
+          <div>생년월일(음력/양력): <span>{{member.birth_date}} ({{member.birth_cd}})</span></div>
+          <div>성별: <span>{{member.gender}}</span></div>
+          <div>정당: <span>{{member.party}}</span></div>
+          <div>선거구: <span>{{member.ward}}</span></div>
+          <div>직책: <span>{{member.position}}</span></div>
+          <div>의원회: <span>{{member.committee}}</span></div>
+          <div>의원실 주소: <span>{{member.office}}</span></div>
+          <div>이메일: <span>{{member.email}}</span></div>
+          <div>전화: <span>{{member.tel}}</span></div>
+          <div>학력 및 경력 사항: <span>{{member.history}}</span></div>
         </div>
       </div>
       <div class="chart">
@@ -145,34 +145,23 @@
             <th>감소액</th>
             <th>감소액실거래가</th>
             <th>현재가액</th>
+            <th>변동사유</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>202408</td>
-            <td>예금</td>
-            <td>배우자</td>
-            <td>-</td>
-            <td>(주)KB손해보험 11,918, DB금융투자 76,107, DB손해보험(주) 718, 농협은행 6,000</td>
-            <td>318,707</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td>202308</td>
-            <td>예금</td>
-            <td>본인</td>
-            <td>-</td>
-            <td>우리은행 5,000, 신한은행 3,000</td>
-            <td>120,000</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td>{{member.year_month}}</td>
+            <td>{{member.pro_classify}}</td>
+            <td>{{member.pro_relationship}}</td>
+            <td>{{member.pro_kind}}</td>
+            <td>{{member.pro_details}}</td>
+            <td>{{member.pre_price}}</td>
+            <td>{{member.inc_price}}</td>
+            <td>{{member.inc_autual_price}}</td>
+            <td>{{member.dec_price}}</td>
+            <td>{{member.dec_actual_price}}</td>
+            <td>{{member.cur_price}}</td>
+            <td>{{member.change}}</td>
           </tr>
         </tbody>
       </table>

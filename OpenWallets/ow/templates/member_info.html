@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% extends 'base.html' %}
+
+{% block title %}의원 상세 정보{% endblock %}
+{% block subtitle %}개인 신상 및 재산 정보{% endblock %}
+
+{% block content %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenWallets - 의원 정보</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4fc;
+      overflow: hidden;
+    }
+
+    .main {
+      flex: 1;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .profile {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .profile-info {
+      display: flex;
+      flex: 2;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .profile-info span {
+      font-weight: bold;
+    }
+
+    .chart {
+      flex: 1;
+      min-width: 250px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .left {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .right {
+      flex: 3;
+      min-width: 300px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    table {
+      min-width: 1200px;
+      width: max-content;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #e6efff;
+    }
+
+    .pagination {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .pagination span {
+      display: inline-block;
+      margin: 0 0.25rem;
+      padding: 0.5rem 0.75rem;
+      background-color: #c3dafe;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <div class="profile">
+      <div class="profile-info">
+        <div class="left">
+          <div>의원명: <span>{{member.name}}</span></div>
+          <div>총 재산: <span>{{member.sum_price}}</span></div>
+        </div>
+        <div class="right">
+          <div>대수: <span>{{member.session}}</span></div>
+          <div>한자: <span>{{member.chinese_name}}</span></div>
+          <div>생년월일(음력/양력): <span>{{member.birth_date}} ({{member.birth_cd}})</span></div>
+          <div>성별: <span>{{member.gender}}</span></div>
+          <div>정당: <span>{{member.party}}</span></div>
+          <div>선거구: <span>{{member.ward}}</span></div>
+          <div>직책: <span>{{member.position}}</span></div>
+          <div>의원회: <span>{{member.committee}}</span></div>
+          <div>의원실 주소: <span>{{member.office}}</span></div>
+          <div>이메일: <span>{{member.email}}</span></div>
+          <div>전화: <span>{{member.tel}}</span></div>
+          <div>학력 및 경력 사항: <span>{{member.history}}</span></div>
+        </div>
+      </div>
+      <div class="chart">
+        <strong>연도별 재산 증감 추이 (억)</strong>
+        <img src="https://via.placeholder.com/400x150?text=연도별+그래프" alt="그래프" style="margin-top: 1rem;">
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>연월</th>
+            <th>재산구분</th>
+            <th>관계</th>
+            <th>재산종류</th>
+            <th>소재지면적 등 권리의 명세</th>
+            <th>종전가액</th>
+            <th>증가액</th>
+            <th>증가액실거래가</th>
+            <th>감소액</th>
+            <th>감소액실거래가</th>
+            <th>현재가액</th>
+            <th>변동사유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{member.year_month}}</td>
+            <td>{{member.pro_classify}}</td>
+            <td>{{member.pro_relationship}}</td>
+            <td>{{member.pro_kind}}</td>
+            <td>{{member.pro_details}}</td>
+            <td>{{member.pre_price}}</td>
+            <td>{{member.inc_price}}</td>
+            <td>{{member.inc_autual_price}}</td>
+            <td>{{member.dec_price}}</td>
+            <td>{{member.dec_actual_price}}</td>
+            <td>{{member.cur_price}}</td>
+            <td>{{member.change}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span>&laquo;</span>
+      <span>1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>4</span>
+      <span>&raquo;</span>
+    </div>
+  </div>
+</body>
+{% endblock %}
+</html>

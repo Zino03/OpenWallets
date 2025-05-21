@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% extends 'base.html' %}
+
+{% block title %}의원 목록{% endblock %}
+{% block subtitle %}의원 목록{% endblock %}
+
+{% block content %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>의원 목록 - OpenWallets</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f3f6fb;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 {
+      font-size: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: #e3ecfa;
+    }
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .page-btn {
+      padding: 8px 12px;
+      background-color: #e3ecfa;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .filters {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="header">
+      <h1>의원 목록&emsp;<small>2025-04-07 기준</small></h1>
+      <div class="filters">
+        <button class="page-btn">지역별</button>
+        <button class="page-btn">정렬기준</button>
+    </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>순번</th>
+          <th>대수</th>
+          <th>의원명</th>
+          <th>생년월일</th>
+          <th>정당</th>
+          <th>선거구</th>
+          <th>총 재산</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ member.session }}</td>
+                    <td><a href="{% url 'member_info' member.code %}">{{ member.name }}</a></td>
+                    <td><strong>{{ member.birth_date }}</strong></td>
+                    <td>{{ member.party }}</td>
+                    <td>{{ member.ward }}</td>
+                    <td>{{ member.sum_price }}</td>
+                </tr>
+                {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo;</a>
+                <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <strong>{{ num }}</strong>
+                {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </div>
+  </div>
+</body>
+{% endblock %}
+</html>

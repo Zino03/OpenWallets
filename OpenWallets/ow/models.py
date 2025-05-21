@@ -1,7 +1,7 @@
 from django.db import models
     
 class AssemblyMember(models.Model):
-    code = models.CharField(max_length=100) # 식별 코드
+    code = models.CharField(max_length=100, unique=True) # 식별 코드
     name = models.CharField(max_length=100) # 이름
     chinese_name = models.CharField(max_length=100) # 한자 이름
     birth_cd = models.BooleanField() # 양력 / 음력

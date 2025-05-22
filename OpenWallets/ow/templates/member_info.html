@@ -15,7 +15,7 @@
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: #f0f4fc;
-      overflow: hidden;
+      overflow: auto;
     }
 
     .main {
@@ -107,21 +107,21 @@
       <div class="profile-info">
         <div class="left">
           <div>의원명: <span>{{member.name}}</span></div>
-          <div>총 재산: <span>{{member.sum_price}}</span></div>
+          <div>총 재산: <span>총 재산</span></div>
         </div>
         <div class="right">
-          <div>대수: <span>{{member.session}}</span></div>
-          <div>한자: <span>{{member.chinese_name}}</span></div>
-          <div>생년월일(음력/양력): <span>{{member.birth_date}} ({{member.birth_cd}})</span></div>
+          <div>대수: <span>{{member.latest_age}}</span></div>
+          <div>한자: <span>{{member.chi_name}}</span></div>
+          <div>생년월일(음력/양력): <span>{{member.birth}} ({{member.birth_cd}})</span></div>
           <div>성별: <span>{{member.gender}}</span></div>
           <div>정당: <span>{{member.party}}</span></div>
-          <div>선거구: <span>{{member.ward}}</span></div>
+          <div>선거구: <span>{{member.electoral_district}}</span></div>
           <div>직책: <span>{{member.position}}</span></div>
           <div>의원회: <span>{{member.committee}}</span></div>
           <div>의원실 주소: <span>{{member.office}}</span></div>
           <div>이메일: <span>{{member.email}}</span></div>
           <div>전화: <span>{{member.tel}}</span></div>
-          <div>학력 및 경력 사항: <span>{{member.history}}</span></div>
+          {% comment %} <div>학력 및 경력 사항: <span>{{member.history}}</span></div> {% endcomment %}
         </div>
       </div>
       <div class="chart">
@@ -141,40 +141,49 @@
             <th>소재지면적 등 권리의 명세</th>
             <th>종전가액</th>
             <th>증가액</th>
-            <th>증가액실거래가</th>
             <th>감소액</th>
-            <th>감소액실거래가</th>
             <th>현재가액</th>
             <th>변동사유</th>
           </tr>
         </thead>
         <tbody>
+        {% for asset in page_obj %}
           <tr>
-            <td>{{member.year_month}}</td>
-            <td>{{member.pro_classify}}</td>
-            <td>{{member.pro_relationship}}</td>
-            <td>{{member.pro_kind}}</td>
-            <td>{{member.pro_details}}</td>
-            <td>{{member.pre_price}}</td>
-            <td>{{member.inc_price}}</td>
-            <td>{{member.inc_autual_price}}</td>
-            <td>{{member.dec_price}}</td>
-            <td>{{member.dec_actual_price}}</td>
-            <td>{{member.cur_price}}</td>
-            <td>{{member.change}}</td>
+            <td>{{asset.report_year}}.{{asset.report_month}}</td>
+            <td>{{asset.asset_type}}</td>
+            <td>{{asset.relation}}</td>
+            <td>{{asset.kind}}</td>
+            <td>{{asset.detail}}</td>
+            <td>{{asset.origin_valuation}}</td>
+            <td>{{asset.increased_amount}}</td>
+            <td>{{asset.decreased_amount}}</td>
+            <td>{{asset.current_valuation}}</td>
+            <td>{{asset.reason_for_change}}</td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
 
     <div class="pagination">
-      <span>&laquo;</span>
-      <span>1</span>
-      <span>2</span>
-      <span>3</span>
-      <span>4</span>
-      <span>&raquo;</span>
-    </div>
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo;</a>
+            <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <strong>{{ num }}</strong>
+            {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+        {% endif %}
+      </div>
   </div>
 </body>
 {% endblock %}

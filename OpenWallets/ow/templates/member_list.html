@@ -65,9 +65,30 @@
   <div class="content">
     <div class="header">
       <h1>의원 목록&emsp;<small>2025-04-07 기준</small></h1>
-      <div class="filters">
-        <button class="page-btn">지역별</button>
-        <button class="page-btn">정렬기준</button>
+      <form method="get" action=".">
+          <label>정당:</label>
+            <select name="party" onchange="this.form.submit()">
+              <option value="">전체</option>
+              {% for p in parties %}
+                <option value="{{ p }}" {% if request.GET.party == p %}selected{% endif %}>{{ p }}</option>
+              {% endfor %}
+            </select>
+
+            <label>지역(시/도):</label>
+            <select name="region" onchange="this.form.submit()">
+              <option value="">전체</option>
+              {% for r in regions %}
+                <option value="{{ r }}" {% if request.GET.region == r %}selected{% endif %}>{{ r }}</option>
+              {% endfor %}
+            </select>
+
+        <label>정렬 기준:</label>
+        <select name="order_by" onchange="this.form.submit()">
+          <option value="name" {% if request.GET.order_by == "name" %}selected{% endif %}>이름순</option>
+          <option value="party" {% if request.GET.order_by == "party" %}selected{% endif %}>정당순</option>
+          <option value="-latest_age" {% if request.GET.order_by == "-latest_age" %}selected{% endif %}>나이(내림차순)</option>
+        </select>
+      </form>
     </div>
     </div>
 
@@ -87,12 +108,12 @@
         {% for member in page_obj %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ member.session }}</td>
-                    <td><a href="{% url 'member_info' member.code %}">{{ member.name }}</a></td>
-                    <td><strong>{{ member.birth_date }}</strong></td>
+                    <td>{{ member.latest_age }}</td>
+                    <td><a href="{% url 'member_info' member.member_id %}">{{ member.name }}</a></td>
+                    <td>{{ member.birth }}</td>
                     <td>{{ member.party }}</td>
-                    <td>{{ member.ward }}</td>
-                    <td>{{ member.sum_price }}</td>
+                    <td>{{ member.electoral_district}}</td>
+                    <td>총 자산</td>
                 </tr>
                 {% endfor %}
       </tbody>

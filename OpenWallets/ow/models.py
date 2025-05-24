@@ -1,5 +1,4 @@
 from django.db import models
-import datetime # 날짜 처리를 위해 추가
 
 class Legislator(models.Model):
     """국회의원 정보를 저장하는 모델 (/members API 기반)"""
@@ -59,7 +58,7 @@ class Asset(models.Model):
     detail = models.TextField(help_text="재산 상세 내역 (API 'detail')")
     current_valuation = models.BigIntegerField(null=True, blank=True, help_text="현재 가액 (API 'currentValuation')")
     reason_for_change = models.TextField(blank=True, null=True, help_text="변동 사유 (API 'reason')")
-
+    
     origin_valuation = models.BigIntegerField(null=True, blank=True, help_text="종전가액 (API 'originValuation')")
     increased_amount = models.BigIntegerField(null=True, blank=True, help_text="증가액 (API 'increasedAmount')")
     decreased_amount = models.BigIntegerField(null=True, blank=True, help_text="감소액 (API 'decreasedAmount')")

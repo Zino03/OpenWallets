@@ -6,6 +6,7 @@
 {% block subtitle %}의원 목록{% endblock %}
 
 {% block content %}
+{% load humanize %}
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -85,8 +86,7 @@
         <label>정렬 기준:</label>
         <select name="order_by" onchange="this.form.submit()">
           <option value="name" {% if request.GET.order_by == "name" %}selected{% endif %}>이름순</option>
-          <option value="party" {% if request.GET.order_by == "party" %}selected{% endif %}>정당순</option>
-          <option value="-latest_age" {% if request.GET.order_by == "-latest_age" %}selected{% endif %}>나이(내림차순)</option>
+          <option value="-total_assets" {% if request.GET.order_by == "-total_assets" %}selected{% endif %}>재산순</option>
         </select>
       </form>
     </div>
@@ -113,7 +113,13 @@
                     <td>{{ member.birth }}</td>
                     <td>{{ member.party }}</td>
                     <td>{{ member.electoral_district}}</td>
-                    <td>총 자산</td>
+                    <td>
+                      {% if member.total_assets != None %}
+                        {{ member.total_assets|intcomma }}
+                      {% else %}
+                        정보 없음
+                      {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
       </tbody>

@@ -6,6 +6,7 @@
 {% block subtitle %}개인 신상 및 재산 정보{% endblock %}
 
 {% block content %}
+{% load humanize %}
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -107,7 +108,7 @@
       <div class="profile-info">
         <div class="left">
           <div>의원명: <span>{{member.name}}</span></div>
-          <div>총 재산: <span>총 재산</span></div>
+          <div>총 재산: <span></strong> {{ total_assets|intcomma }}</span></div>
         </div>
         <div class="right">
           <div>대수: <span>{{member.latest_age}}</span></div>
@@ -185,6 +186,14 @@
         {% endif %}
       </div>
   </div>
+    {% for year, assets in assets_by_year.items %}
+      <h3>{{ year }}년</h3>
+      <ul>
+        {% for asset in assets %}
+          <li>{{ asset.asset_type }} - {{ asset.current_valuation|intcomma }}원</li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
 </body>
 {% endblock %}
 </html>

@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from ow.models import Legislator, Asset
-from django.db.models import Sum, ExpressionWrapper, IntegerField
+from django.db.models import Sum
+from collections import defaultdict
 
 def main_page(request): # 대시보드 (메인 페이지)
     return render(request, 'main_page.html')
@@ -57,11 +58,21 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
     asset = Asset.objects.filter(legislator=member).order_by('-updated_at')
     paginator = Paginator(asset, 10)  # 한 페이지에 10개
 
+    total_assets = asset.aggregate(sum=Sum('current_valuation'))['sum'] or 0 # 재산 합계
+    assets_by_year_month = defaultdict(list)
+    for asset in asset:
+        if asset.report_year and asset.report_month:
+            key = f"{asset.report_year}-{asset.report_month:02d}"
+            assets_by_year_month[key].append(asset)
+        
+    print(assets_by_year_month)
+
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'member_info.html', {
         'member': member, 
         'page_obj': page_obj,
+        'total_assets': total_assets
     })
 
 def api_page(request): # api 정보 페이지

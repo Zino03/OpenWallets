@@ -2,33 +2,69 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>{% block title %}OpenWallets{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+  />
+  <style>
+    /* 사이드바 고정 및 너비 지정 */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh; /* 화면 전체 높이 */
+      width: 11rem;
+      background-color: #1e40af; /* Tailwind의 bg-blue-900 */
+      color: white;
+      padding: 1rem;
+      z-index: 50;
+    }
+
+    /* 본문 영역 왼쪽 여백 (사이드바 너비 만큼) */
+    .main-content {
+      margin-left: 11rem;
+      padding: 1.5rem;
+    }
+
+    /* 링크 스타일 (hover 색상) */
+    .sidebar nav a {
+      display: block;
+      margin-bottom: 1rem;
+      transition: color 0.3s;
+      color: inherit;
+      text-decoration: none;
+    }
+    .sidebar nav a:hover {
+      color: #93c5fd; /* Tailwind의 text-blue-300 */
+    }
+  </style>
 </head>
 <body class="bg-gray-100">
-
-  <!-- 사이드바 -->
-  <div class="flex">
-    <aside class="w-50 h-screen bg-blue-900 text-white p-4">
+  <div>
+    <!-- 고정된 사이드바 -->
+    <aside class="sidebar">
       <h1 class="text-2xl font-bold mb-8">OpenWallets</h1>
-      <nav class="space-y-4">
-        <a href="{% url 'main_page' %}" class="block hover:text-blue-300">대시보드</a>
-        <a href="{% url 'member_list' %}" class="block hover:text-blue-300">의원목록</a>
-        <a href="{% url 'api_page' %}" class="block hover:text-blue-300">API</a>
-        <a href="{% url 'guide_page' %}" class="block hover:text-blue-300">이용안내</a>
+      <nav>
+        <a href="{% url 'main_page' %}">대시보드</a>
+        <a href="{% url 'member_list' %}">의원목록</a>
+        <a href="{% url 'api_page' %}">API</a>
+        <a href="{% url 'guide_page' %}">이용안내</a>
       </nav>
     </aside>
 
     <!-- 본문 영역 -->
-    <main class="flex-1 p-6">
+    <main class="main-content">
       <!-- 상단 검색창 -->
       <div class="flex justify-between items-center mb-6">
-        <div class="text-gray-600 font-semibold">
-          {% block subtitle %}{% endblock %}
-        </div>
+        <div class="text-gray-600 font-semibold">{% block subtitle %}{% endblock %}</div>
         <div class="relative w-1/3">
-          <input type="text" class="w-full px-4 py-2 rounded-full border focus:outline-none" placeholder="search">
+          <input
+            type="text"
+            class="w-full px-4 py-2 rounded-full border focus:outline-none"
+            placeholder="search"
+          />
         </div>
       </div>
 

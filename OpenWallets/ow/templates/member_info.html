@@ -21,7 +21,7 @@
 
     .main {
       flex: 1;
-      max-width: 1050px;
+      max-width: 1000px;
       margin: 0 auto;
     }
 
@@ -125,12 +125,43 @@
           {% comment %} <div>학력 및 경력 사항: <span>{{member.history}}</span></div> {% endcomment %}
         </div>
       </div>
-      <div class="chart">
-        <strong>연도별 재산 증감 추이 (억)</strong>
-        <img src="https://via.placeholder.com/400x150?text=연도별+그래프" alt="그래프" style="margin-top: 1rem;">
-      </div>
+      <div>
+      <h2>{{ member.name }} 의원의 재산 변화 추이</h2>
+      <canvas id="assetChart" width="600" height="300"></canvas>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+          const labels = {{ graph_labels|safe }};
+          const data = {{ graph_data|safe }};
+
+          const ctx = document.getElementById('assetChart').getContext('2d');
+          const assetChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                  labels: labels, // ['2022-03', '2023-03', ...]
+                  datasets: [{
+                      label: '재산(1000원)',
+                      data: data,    // [300000000, 350000000, ...]
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                      fill: true,
+                      tension: 0.3,
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          ticks: {
+                              callback: function(value) {
+                                  return value.toLocaleString();
+                              }
+                          }
+                      }
+                  }
+              }
+          });
+      </script>
     </div>
-    
     <div class="table-container">
       <table>
         <thead>

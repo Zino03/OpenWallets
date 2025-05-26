@@ -55,24 +55,35 @@ def member_list(request):  # 의원 목록 페이지
 def member_info(request, member_id): # 의원 상세 정보 페이지
     # 여기선 일단 임시 데이터로 구성
     member = get_object_or_404(Legislator, member_id=member_id)
-    asset = Asset.objects.filter(legislator=member).order_by('-updated_at')
+    asset = Asset.objects.filter(legislator=member).order_by('-report_year', '-report_month')
     paginator = Paginator(asset, 10)  # 한 페이지에 10개
 
     total_assets = asset.aggregate(sum=Sum('current_valuation'))['sum'] or 0 # 재산 합계
-    assets_by_year_month = defaultdict(list)
+    
+    # 연월별 자산 합계 계산
+    assets_by_month = defaultdict(int)
     for asset in asset:
         if asset.report_year and asset.report_month:
             key = f"{asset.report_year}-{asset.report_month:02d}"
-            assets_by_year_month[key].append(asset)
-        
-    print(assets_by_year_month)
+            assets_by_month[key] += asset.current_valuation or 0
+
+    # 날짜 오름차순 정렬
+    assets_by_month = dict(sorted(assets_by_month.items()))
+    sorted_assets = dict(sorted(assets_by_month.items(), key=lambda x: x[0]))
+    
+    # 정렬된 딕셔너리를 리스트 2개로 분리
+    labels = sorted(assets_by_month.keys())
+    values = [assets_by_month[key] for key in labels]
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'member_info.html', {
         'member': member, 
         'page_obj': page_obj,
-        'total_assets': total_assets
+        'total_assets': total_assets,
+        'graph_labels': labels,
+        'graph_data': values,
+        'sorted_assets': sorted_assets,
     })
 
 def api_page(request): # api 정보 페이지

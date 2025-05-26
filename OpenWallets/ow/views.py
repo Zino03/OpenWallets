@@ -9,6 +9,7 @@ def main_page(request): # 대시보드 (메인 페이지)
 
 def member_list(request):  # 의원 목록 페이지
     order_by = request.GET.get('order_by', 'name')  # 기본 정렬: 이름
+    query = request.GET.get('q', '')  # 검색어 파라미터
 
     # 필터링 조건
     party = request.GET.get('party')
@@ -17,6 +18,8 @@ def member_list(request):  # 의원 목록 페이지
     # 기본 쿼리셋
     members = Legislator.objects.all()
 
+    if query:
+        members = members.filter(name__icontains=query)  # 이름 기준 검색
     if party:
         members = members.filter(party=party)
     if region:
@@ -49,6 +52,7 @@ def member_list(request):  # 의원 목록 페이지
         'parties': parties,
         'regions': regions,
         'page_obj': page_obj,
+        'query': query,
     })
 
 

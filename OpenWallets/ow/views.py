@@ -5,7 +5,22 @@ from django.db.models import Sum
 from collections import defaultdict
 
 def main_page(request): # 대시보드 (메인 페이지)
-    return render(request, 'main_page.html')
+    top_members = Legislator.objects.annotate(
+    total_assets=Sum('assets__current_valuation')
+        ).order_by('-total_assets')[:20]
+    
+    # 순번을 붙여서 리스트로 변환 (index 0부터 시작하므로 +1)
+    numbered_members = [
+        {'rank': idx + 1, 'member': member}
+        for idx, member in enumerate(top_members)
+    ]
+
+    # 4개씩 나누기
+    chunked_members = [numbered_members[i:i+4] for i in range(0, len(numbered_members), 4)]
+
+    return render(request, 'main_page.html',{
+        'chunked_members': chunked_members, 
+    })
 
 def member_list(request):  # 의원 목록 페이지
     order_by = request.GET.get('order_by', 'name')  # 기본 정렬: 이름

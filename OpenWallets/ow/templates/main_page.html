@@ -5,6 +5,7 @@
 {% block title %}대시보드{% endblock %}
 {% block subtitle %}재산 공개 대시보드{% endblock %}
 {% block content %}
+{% load humanize %}
 <head>
     <meta charset="UTF-8">
     <title>OpenWallets - 메인</title>
@@ -45,34 +46,139 @@
             font-weight: bold;
             color: #043b85;
         }
+
+        .slider-wrapper {
+            position: relative;
+            width: 1000px; /* 카드 4개 * (170 + 2*10)px */
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slider-viewport {
+            width: 900px;
+            overflow: hidden;
+            /* slider-page는 flex 컨테이너 */
+        }
+
+        .slider-page {
+            display: flex;
+            /* gap으로 카드 간격 조절 */
+        }
+
+        .slide-card {
+            flex: 0 0 175px;
+            background: #fff;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        /* 버튼 */
+        .slide-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background: #043b85;
+            color: white;
+            border: none;
+            font-size: 12px;
+            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.3s ease;
+        }
+
+        /* 왼쪽 버튼을 슬라이더 왼쪽 영역 밖으로 이동 (사이드바와 겹치지 않게) */
+        #prevBtn {
+            left: 0px;  /* 슬라이더 wrapper의 왼쪽 밖으로 */
+        }
+
+        /* 오른쪽 버튼도 슬라이더 오른쪽 밖으로 */
+        #nextBtn {
+            right: 10px;
+        }
+
     </style>
 </head>
 <body>
     <div class="main">
         <div class="card">
             <h2>2025-04-07 기준 상위 의원 재산</h2>
-            <div class="grid">
-                <div>
-                    <strong>1.</strong> 의원명1<br>총 재산: 1조
+            <div class="slider-wrapper">
+                <button class="slide-btn" id="prevBtn">&#10094;</button>
+                <div class="slider-viewport">
+                    {% for page in chunked_members %}
+                    <div class="slider-page" style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px;">
+                        {% for item in page %}
+                            <div class="slide-card">
+                                <strong>{{ item.rank }}.</strong> {{ item.member.name }}<br>
+                                총 재산: {{ item.member.total_assets|intcomma }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
                 </div>
-                <div>
-                    <strong>2.</strong> 의원명2<br>총 재산: 9000억
-                </div>
-                <div>
-                    <strong>3.</strong> 의원명3<br>총 재산: 7500억
-                </div>
-                <div>
-                    <strong>4.</strong> 의원명4<br>총 재산: 5000억
-                </div>
+                <button class="slide-btn" id="nextBtn">&#10095;</button>
             </div>
         </div>
+    <script>
+        const pages = document.querySelectorAll('.slider-page');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        let currentPage = 0;
+        const maxPage = pages.length - 1;
+
+        function showPage(index) {
+            pages.forEach((page, i) => {
+                page.style.display = (i === index) ? 'flex' : 'none';
+            });
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < maxPage) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+    </script>
+
         <div class="grid">
             <div class="card">
-                <h3>지역 선택</h3>
+                <label>지역(시/도):</label>
+                <select name="region" onchange="this.form.submit()">
+                <option value="">전체</option>
+                {% for r in regions %}
+                    <option value="{{ r }}" {% if request.GET.region == r %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+                </select>
                 충북 지역 총 재산<br><strong>1조 8000억</strong>
             </div>
             <div class="card">
-                <h3>정당 선택</h3>
+                <label>정당:</label>
+                <select name="party" onchange="this.form.submit()">
+                <option value="">전체</option>
+                {% for p in parties %}
+                    <option value="{{ p }}" {% if request.GET.party == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+                </select>
                 국민의힘<br><strong>총 재산 100조</strong>
                 <div class="chart">정당별 그래프</div>
             </div>

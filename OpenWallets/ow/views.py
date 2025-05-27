@@ -3,13 +3,15 @@ from django.core.paginator import Paginator
 from ow.models import Legislator, Asset
 from django.db.models import Sum
 from collections import defaultdict
+from django.db.models.functions import Left
 
-def main_page(request): # 대시보드 (메인 페이지)
+def main_page(request):
+    # 기존 top_members 쿼리 유지
     top_members = Legislator.objects.annotate(
-    total_assets=Sum('assets__current_valuation')
-        ).order_by('-total_assets')[:20]
+        total_assets=Sum('assets__current_valuation')
+    ).order_by('-total_assets')[:20]
     
-    # 순번을 붙여서 리스트로 변환 (index 0부터 시작하므로 +1)
+        # 순번을 붙여서 리스트로 변환 (index 0부터 시작하므로 +1)
     numbered_members = [
         {'rank': idx + 1, 'member': member}
         for idx, member in enumerate(top_members)
@@ -18,9 +20,59 @@ def main_page(request): # 대시보드 (메인 페이지)
     # 4개씩 나누기
     chunked_members = [numbered_members[i:i+4] for i in range(0, len(numbered_members), 4)]
 
-    return render(request, 'main_page.html',{
-        'chunked_members': chunked_members, 
+    # 지역별 총 자산 (앞 두 글자만 추출해서 그룹화)
+    assets_by_region_qs = Legislator.objects.annotate(
+        short_region=Left('electoral_district', 2)  # region 필드 앞 2글자 추출
+    ).values('short_region').annotate(
+        total_assets=Sum('assets__current_valuation')
+    )
+
+    region_assets = {item['short_region']: item['total_assets'] for item in assets_by_region_qs}
+
+    # 정당별 총 자산 예시
+    assets_by_party_qs = Legislator.objects.values('party').annotate(
+        total_assets=Sum('assets__current_valuation')
+    )
+    party_assets = {item['party']: item['total_assets'] for item in assets_by_party_qs}
+
+    regions = list(region_assets.keys())
+    parties = list(party_assets.keys())
+    
+    region_top4_data = {}
+    for region in regions:
+        top4 = Legislator.objects.filter(
+            electoral_district__startswith=region
+        ).annotate(
+            total_assets=Sum('assets__current_valuation')
+        ).order_by('-total_assets')[:4]
+        region_top4_data[region] = [
+            {'name': m.name, 'total_assets': m.total_assets or 0}
+            for m in top4
+        ]
+
+    # 정당별 top4 의원
+    party_top4_data = {}
+    for party in parties:
+        top4 = Legislator.objects.filter(
+            party=party
+        ).annotate(
+            total_assets=Sum('assets__current_valuation')
+        ).order_by('-total_assets')[:4]
+        party_top4_data[party] = [
+            {'name': m.name, 'total_assets': m.total_assets or 0}
+            for m in top4
+        ]
+
+    return render(request, 'main_page.html', {
+        'chunked_members': chunked_members,
+        'region_assets': region_assets,
+        'party_assets': party_assets,
+        'region_top4': region_top4_data,
+        'party_top4': party_top4_data,
+        'regions': regions,
+        'parties': parties,
     })
+
 
 def member_list(request):  # 의원 목록 페이지
     order_by = request.GET.get('order_by', 'name')  # 기본 정렬: 이름

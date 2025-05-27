@@ -160,30 +160,97 @@
         });
     </script>
 
-        <div class="grid">
-            <div class="card">
-                <label>지역(시/도):</label>
-                <select name="region" onchange="this.form.submit()">
-                <option value="">전체</option>
-                {% for r in regions %}
-                    <option value="{{ r }}" {% if request.GET.region == r %}selected{% endif %}>{{ r }}</option>
+    <div class="flex-container" style="display:flex; gap: 20px;">
+        <!-- 지역별 카드 -->
+        <div class="card region-card" style="flex:1;">
+            <h3>지역별 총 자산</h3>
+            <select id="regionSelect">
+                <option value="">-- 지역 선택 --</option>
+                {% for region in regions %}
+                <option value="{{ region }}">{{ region }}</option>
                 {% endfor %}
-                </select>
-                충북 지역 총 재산<br><strong>1조 8000억</strong>
+            </select>
+            <div id="regionAssetDisplay" style="margin-top:10px; font-weight:bold;">
+                <!-- 선택한 지역 자산 금액 -->
             </div>
-            <div class="card">
-                <label>정당:</label>
-                <select name="party" onchange="this.form.submit()">
-                <option value="">전체</option>
-                {% for p in parties %}
-                    <option value="{{ p }}" {% if request.GET.party == p %}selected{% endif %}>{{ p }}</option>
-                {% endfor %}
-                </select>
-                국민의힘<br><strong>총 재산 100조</strong>
-                <div class="chart">정당별 그래프</div>
+            <div id="regionTop4" style="margin-top:15px;">
+                <!-- 선택 지역 상위 4명 의원 목록 -->
             </div>
         </div>
+
+        <!-- 정당별 카드 -->
+        <div class="card party-card" style="flex:1;">
+            <h3>정당별 총 자산</h3>
+            <select id="partySelect">
+                <option value="">-- 정당 선택 --</option>
+                {% for party in parties %}
+                <option value="{{ party }}">{{ party }}</option>
+                {% endfor %}
+            </select>
+            <div id="partyAssetDisplay" style="margin-top:10px; font-weight:bold;">
+                <!-- 선택한 정당 자산 금액 -->
+            </div>
+            <div id="partyTop4" style="margin-top:15px;">
+                <!-- 선택 정당 상위 4명 의원 목록 -->
+            </div>
+        </div>
+    <script>
+        // 데이터 JSON화 (views.py에서 넘긴 context 사용)
+        const regionAssets = {{ region_assets|safe }};
+        const partyAssets = {{ party_assets|safe }};
+        
+        // top4 데이터도 미리 넘겨서 사용 (views.py에서 JSON 직렬화 후 전달 필요)
+        // 예시:
+        // regionTop4Data = { '충북': [{name:'김아무개', total_assets:123456}, ...], ... }
+        // partyTop4Data = { '국민의힘': [{name:'박아무개', total_assets:654321}, ...], ... }
+        const regionTop4Data = {{ region_top4|safe }};
+        const partyTop4Data = {{ party_top4|safe }};
+
+        const regionSelect = document.getElementById('regionSelect');
+        const regionDisplay = document.getElementById('regionAssetDisplay');
+        const regionTop4Div = document.getElementById('regionTop4');
+
+        const partySelect = document.getElementById('partySelect');
+        const partyDisplay = document.getElementById('partyAssetDisplay');
+        const partyTop4Div = document.getElementById('partyTop4');
+
+        function renderTop4(list, container) {
+            if (!list || list.length === 0) {
+                container.innerHTML = '<em>데이터가 없습니다.</em>';
+                return;
+            }
+            let html = '<ol>';
+            list.forEach(item => {
+                html += `<li>${item.name} — 총 재산: ${item.total_assets.toLocaleString()} 원</li>`;
+            });
+            html += '</ol>';
+            container.innerHTML = html;
+        }
+
+        regionSelect.addEventListener('change', () => {
+            const selected = regionSelect.value;
+            if (selected && regionAssets[selected]) {
+                regionDisplay.textContent = `${selected} 총 재산: ${regionAssets[selected].toLocaleString()} 원`;
+                renderTop4(regionTop4Data[selected], regionTop4Div);
+            } else {
+                regionDisplay.textContent = '';
+                regionTop4Div.innerHTML = '';
+            }
+        });
+
+        partySelect.addEventListener('change', () => {
+            const selected = partySelect.value;
+            if (selected && partyAssets[selected]) {
+                partyDisplay.textContent = `${selected} 총 재산: ${partyAssets[selected].toLocaleString()} 원`;
+                renderTop4(partyTop4Data[selected], partyTop4Div);
+            } else {
+                partyDisplay.textContent = '';
+                partyTop4Div.innerHTML = '';
+            }
+        });
+    </script>
     </div>
+</div>
 </body>
 {% endblock %}
 </html>

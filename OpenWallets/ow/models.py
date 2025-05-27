@@ -24,7 +24,8 @@ class Legislator(models.Model):
     email = models.CharField(max_length=100, blank=True, null=True) # 이메일
     history =  models.JSONField(default = list, blank=True, null=True) # 약력
     office =  models.JSONField(default = list, blank=True, null=True) # 사무실 호실
-
+    total_assets = models.BigIntegerField(default=0)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

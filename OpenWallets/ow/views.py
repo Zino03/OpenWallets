@@ -1,17 +1,15 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from ow.models import Legislator, Asset
-from django.db.models import Sum
+from django.db.models import OuterRef, Subquery, Sum, F, Max
 from collections import defaultdict
 from django.db.models.functions import Left
 
 def main_page(request):
-    # 기존 top_members 쿼리 유지
-    top_members = Legislator.objects.annotate(
-        total_assets=Sum('assets__current_valuation')
-    ).order_by('-total_assets')[:20]
-    
-        # 순번을 붙여서 리스트로 변환 (index 0부터 시작하므로 +1)
+    # 상위 20명 정렬
+    top_members = Legislator.objects.order_by('-total_assets')[:20]
+
+    # 순위 붙이기
     numbered_members = [
         {'rank': idx + 1, 'member': member}
         for idx, member in enumerate(top_members)
@@ -20,43 +18,38 @@ def main_page(request):
     # 4개씩 나누기
     chunked_members = [numbered_members[i:i+4] for i in range(0, len(numbered_members), 4)]
 
-    # 지역별 총 자산 (앞 두 글자만 추출해서 그룹화)
-    assets_by_region_qs = Legislator.objects.annotate(
-        short_region=Left('electoral_district', 2)  # region 필드 앞 2글자 추출
+    # 지역별 자산 합계 (지역 앞 2글자 기준)
+    assets_by_region_qs = Legislator.objects.exclude(electoral_district__isnull=True).annotate(
+        short_region=Left('electoral_district', 2)
     ).values('short_region').annotate(
-        total_assets=Sum('assets__current_valuation')
+        total_assets=Sum('total_assets')
     )
-
     region_assets = {item['short_region']: item['total_assets'] for item in assets_by_region_qs}
+    regions = list(region_assets.keys())
 
-    # 정당별 총 자산 예시
-    assets_by_party_qs = Legislator.objects.values('party').annotate(
-        total_assets=Sum('assets__current_valuation')
+    # 정당별 자산 합계
+    assets_by_party_qs = Legislator.objects.exclude(party__isnull=True).values('party').annotate(
+        total_assets=Sum('total_assets')
     )
     party_assets = {item['party']: item['total_assets'] for item in assets_by_party_qs}
-
-    regions = list(region_assets.keys())
     parties = list(party_assets.keys())
-    
+
+    # 지역별 상위 4명
     region_top4_data = {}
     for region in regions:
         top4 = Legislator.objects.filter(
             electoral_district__startswith=region
-        ).annotate(
-            total_assets=Sum('assets__current_valuation')
         ).order_by('-total_assets')[:4]
         region_top4_data[region] = [
             {'name': m.name, 'total_assets': m.total_assets or 0}
             for m in top4
         ]
 
-    # 정당별 top4 의원
+    # 정당별 상위 4명
     party_top4_data = {}
     for party in parties:
         top4 = Legislator.objects.filter(
             party=party
-        ).annotate(
-            total_assets=Sum('assets__current_valuation')
         ).order_by('-total_assets')[:4]
         party_top4_data[party] = [
             {'name': m.name, 'total_assets': m.total_assets or 0}
@@ -72,6 +65,7 @@ def main_page(request):
         'regions': regions,
         'parties': parties,
     })
+
 
 
 def member_list(request):  # 의원 목록 페이지
@@ -91,11 +85,6 @@ def member_list(request):  # 의원 목록 페이지
         members = members.filter(party=party)
     if region:
         members = members.filter(electoral_district__startswith=region)
-
-    # 자산 합계 어노테이션
-    members = members.annotate(
-        total_assets=Sum('assets__current_valuation')
-    )
 
     # 정렬 기준 처리
     if order_by in ['name', '-total_assets']:
@@ -129,8 +118,6 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
     asset = Asset.objects.filter(legislator=member).order_by('-report_year', '-report_month')
     paginator = Paginator(asset, 10)  # 한 페이지에 10개
 
-    total_assets = asset.aggregate(sum=Sum('current_valuation'))['sum'] or 0 # 재산 합계
-    
     # 연월별 자산 합계 계산
     assets_by_month = defaultdict(int)
     for asset in asset:
@@ -140,7 +127,6 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
 
     # 날짜 오름차순 정렬
     assets_by_month = dict(sorted(assets_by_month.items()))
-    sorted_assets = dict(sorted(assets_by_month.items(), key=lambda x: x[0]))
     
     # 정렬된 딕셔너리를 리스트 2개로 분리
     labels = sorted(assets_by_month.keys())
@@ -151,10 +137,8 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
     return render(request, 'member_info.html', {
         'member': member, 
         'page_obj': page_obj,
-        'total_assets': total_assets,
         'graph_labels': labels,
         'graph_data': values,
-        'sorted_assets': sorted_assets,
     })
 
 def api_page(request): # api 정보 페이지

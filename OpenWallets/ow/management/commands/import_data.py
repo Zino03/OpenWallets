@@ -22,12 +22,12 @@ class Command(BaseCommand):
             reader = csv.DictReader(f)
             for row in reader:
                 legislator, created = Legislator.objects.update_or_create(
-                    member_id=row['member_id'],
+                    member_id = row['member_id'],
                     defaults={
                         'name': row['name'],
+                        'birth': row.get('birth', ''),
                         'chi_name': row['chi_name'],
                         'birth_cd': row.get('birth_cd', ''),
-                        'birth': row.get('birth', ''),
                         'position': row.get('position', ''),
                         'party': row.get('party', ''),
                         'electoral_district': row.get('electoral_district', ''),
@@ -39,8 +39,8 @@ class Command(BaseCommand):
                         'tel': row.get('tel', ''),
                         'email': row.get('email', ''),
                         'history': row.get('history', ''),
-                        'office': row.get('office', ''),   
-                    }
+                        'office': row.get('office', ''),  
+                    } 
                 )
                 self.stdout.write(f" - {'생성' if created else '업데이트'}됨: {legislator.name}")
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from ow.models import Legislator, Asset
-from django.db.models import OuterRef, Subquery, Sum, F, Max
+from django.db.models import Sum
 from collections import defaultdict
 from django.db.models.functions import Left
 

@@ -4,7 +4,7 @@ from ow.models import Legislator, Asset
 
 
 class Command(BaseCommand):
-    help = 'CSV 파일로부터 Legislator와 Asset 데이터를 로드합니다.'
+    help = 'CSV 파일로부터 Legislator와 Asset 데이터를 로드.'
 
     def add_arguments(self, parser):
         parser.add_argument('--members', type=str, help='members.csv 경로')

@@ -17,26 +17,35 @@
             color: #002c6a;
         }
         .main {
+            display:flex;
+            flex-wrap: wrap;
             padding: 5px;
         }
         .card {
             background: white;
             border-radius: 10px;
             padding: 20px;
+            margin: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: auto;
+            height: auto;
+        }
+
+        .card-a{
+            background: #E1F2FF;
+            border-radius: 10px;
+            padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: auto;
         }
-        .card h2 {
+
+        .card h3 {
             margin-top: 0;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
         }
         .chart {
             width: 100%;
-            height: 200px;
+            height: 250px;
             background: #dde8fb;
             border-radius: 8px;
             display: flex;
@@ -113,6 +122,20 @@
             color: black;
         }
 
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            margin: 10px;
+            flex-wrap: wrap; /* 창이 좁아질 경우 아래로 배치됨 */
+            align-items: first-start;
+        }
+        .flex-item {
+            flex: 1 1 auto;
+            min-width: 200px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
         .region_name path,
         .region_name polygon,
         .region_name .st0 {
@@ -134,12 +157,17 @@
         .region_name.selected .st0 {
             fill: #ff6600;
         }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
     <div class="main">
         <div class="card">
-            <h2>2025-04-07 기준 상위 의원 재산</h2>
+            <h3>2025-04-07 기준 상위 의원 재산</h3>
             <div class="slider-wrapper">
                 <button class="slide-btn" id="prevBtn">&#10094;</button>
                 <div class="slider-viewport">
@@ -187,115 +215,146 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <!-- 지역별 카드 -->
-        <div class="card region-card" style="flex:1;">
-            <h3>지역별 총 자산</h3>
-            <select id="regionSelect">
-                <option value="">-- 지역 선택 --</option>
-                {% for region in regions %}
-                <option value="{{ region }}">{{ region }}</option>
-                {% endfor %}
-            </select>
-            <div id="regionAssetDisplay" style="margin-top:10px; font-weight:bold;">
-                <!-- 선택한 지역 자산 금액 -->
+        <div class="card region-card">
+            <div class="flex-container">
+                <h3 class="flex-item" style="min-width: 0px;">지역별 총 자산</h3>
+                <div class="flex-item" style="display: flex; flex-direction: column; gap: 5px;">
+                    <select id="regionSelect">
+                        <option value="">-- 지역 선택 --</option>
+                        {% for region in regions %}
+                        <option value="{{ region }}">{{ region }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="regionAssetDisplay" style="font-weight:bold;">
+                        <!-- 선택한 지역 자산 금액 -->
+                    </div>
+                </div>
             </div>
-
-            <div id="map-container" style="width: 100%; max-width: 400px; height: 300px;">
-                {% include 'svg/korea_map.svg' %}
-            </div>
-            <div id="regionTop4" style="margin-top:15px;">
-                <!-- 선택 지역 상위 4명 의원 목록 -->
-            </div>
-            <div style="width: 100%; max-width: 400px; height: 300px;">
-                <canvas id="regionPieChart" width="200" height="200"></canvas>
-                <script>
-                    const regionCtx = document.getElementById('regionPieChart').getContext('2d');
-                    const regionPieChart = new Chart(regionCtx, {
-                        type: 'pie',
-                        data: {
-                            labels: {{ regions|safe }},
-                            datasets: [{
-                                label: '지역별 재산 총합',
-                                data: {{ region_asset_values|safe }},
-                                backgroundColor: [
-                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-                                    '#C9CBCF', '#E7E9ED', '#B39DDB', '#90CAF9'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
+            <div class="flex-container">
+                <div class="card-a">
+                    <div class="flex-item" id="regionTop4">
+                        <!-- 선택 지역 상위 4명 의원 목록 -->
+                    </div>
+                </div>
+                <div class="card-a">
+                    <div class="flex-item" style="width: 100%; max-width: 250px; height: auto">
+                        지역별 재산 비율
+                        <canvas id="regionPieChart"></canvas>
+                        <script>
+                            const regionCtx = document.getElementById('regionPieChart').getContext('2d');
+                            const regionPieChart = new Chart(regionCtx, {
+                                type: 'pie',
+                                data: {
+                                    labels: {{ regions|safe }},
+                                    datasets: [{
+                                        label: '지역별 재산 총합',
+                                        data: {{ region_asset_values|safe }},
+                                        backgroundColor: [
+                                            '#0958A7', '#D6001C', '#33A853', '#F4B400', '#8E24AA', '#E91E63',
+                                            '#FF7043', '#00897B', '#6D4C41', '#607D8B', '#C62828', '#283593',
+                                            '#AD1457', '#00ACC1', '#689F38', '#F4511E', '#7B1FA2'
+                                        ],
+                                        borderWidth: 1
+                                    }]
                                 },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            const value = context.raw.toLocaleString();
-                                            return `${context.label}: ${value} 원`;
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    const value = context.raw.toLocaleString();
+                                                    return `${context.label}: ${value} 원`;
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }
-                    });
-                </script>
+                            });
+                        </script>
+                    </div>
+                </div>
+                <div class="card-a">
+                    <div class="flex-item" id="map-container" style="width: atuo; max-width: 400px; height: auto">
+                        대한민국 지도
+                        {% include 'svg/korea_map.svg' %}
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 정당별 카드 -->
         <div class="card party-card" style="flex:1;">
-            <h3>정당별 총 자산</h3>
-            <select id="partySelect">
-                <option value="">-- 정당 선택 --</option>
-                {% for party in parties %}
-                <option value="{{ party }}">{{ party }}</option>
-                {% endfor %}
-            </select>
-            <div id="partyAssetDisplay" style="margin-top:10px; font-weight:bold;">
-                <!-- 선택한 정당 자산 금액 -->
+            <div class="flex-container">
+                <h3 class="flex-item">정당별 총 자산</h3>
+                <div class="flex-item">
+                    <select id="partySelect">
+                        <option value="">-- 정당 선택 --</option>
+                        {% for party in parties %}
+                        <option value="{{ party }}">{{ party }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="partyAssetDisplay" style="margin-top:10px; font-weight:bold;">
+                        <!-- 선택한 정당 자산 금액 -->
+                    </div>
+                </div>
             </div>
-            <div id="partyTop4" style="margin-top:15px;">
-                <!-- 선택 정당 상위 4명 의원 목록 -->
-            </div>
-            <div style="width: 100%; max-width: 400px; height: 300px;">
-                <canvas id="partyPieChart" width="200" height="200"></canvas>
-                <script>
-                    const partyCtx = document.getElementById('partyPieChart').getContext('2d');
-                    const partyPieChart = new Chart(partyCtx, {
-                        type: 'pie',
-                        data: {
-                            labels: {{ parties|safe }},
-                            datasets: [{
-                                label: '정당별 재산 총합',
-                                data: {{ party_asset_values|safe }},
-                                backgroundColor: [
-                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-                                    '#C9CBCF', '#E7E9ED', '#B39DDB', '#90CAF9'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            const value = context.raw.toLocaleString();
-                                            return `${context.label}: ${value} 원`;
+            <div class="flex-container">
+                <div class="card-a">
+                    <div class="flex-item">
+                        <div id="partyTop4">
+                            <!-- 선택 정당 상위 4명 의원 목록 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="card-a">
+                    <div class="flex-item">
+                        <div style="width: 100%; max-width: 400px; height: 300px;">
+                            <canvas id="partyPieChart"></canvas>
+                            <script>
+                                const partyCtx = document.getElementById('partyPieChart').getContext('2d');
+                                const partyPieChart = new Chart(partyCtx, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: {{ parties|safe }},
+                                        datasets: [{
+                                            label: '정당별 재산 총합',
+                                            data: {{ party_asset_values|safe }},
+                                            backgroundColor: [
+                                                '#D74F00', '#FF1D1D', '#24FFD3', '#2400C3', '#9966FF', '#FFA83E', 
+                                                '#45BABD', '#FBC700', '#FFED00', '#0958A7', '#06275E', '#D6001C'
+                                            ],
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'bottom',
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        const value = context.raw.toLocaleString();
+                                                        return `${context.label}: ${value} 원`;
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                            }
-                        }
-                    });
-                </script>
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="card" style="flex:1;">
+            <strong>C</strong>
         </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -318,13 +377,11 @@
         const partyDisplay = document.getElementById('partyAssetDisplay');
         const partyTop4Div = document.getElementById('partyTop4');
 
-        function renderTop4(list, container) {
-            if (!list || list.length === 0) {
-                container.innerHTML = '<em>데이터가 없습니다.</em>';
-                return;
-            }
-            let html = '<ol>';
+        function renderTop4(list, container, title_name) {
+            let html = `${title_name} 재산 보유 상위 TOP4</br>`;
+            html += '<ol>';
             list.forEach(item => {
+                console.log(list);
                 html += `<li>${item.name}</br>총 재산: ${item.total_assets.toLocaleString()}</li>`;
             });
             html += '</ol>';
@@ -334,17 +391,30 @@
         regionSelect.addEventListener('change', () => {
             const mapContainer = document.getElementById('map-container');
             const selected = regionSelect.value;
+            regionPieChart.setActiveElements([]);
+            
             mapContainer.querySelectorAll('.region_name').forEach(el => {
                 el.classList.remove('selected');
                 if (el.dataset.name === selected) {
                     el.classList.add('selected');
-                    console.log("하이라이트 적용:", el.dataset.name);
                 }
             }); 
 
             if (selected && regionAssets[selected]) {
                 regionDisplay.textContent = `${selected} 총 재산: ${regionAssets[selected].toLocaleString()}`;
-                renderTop4(regionTop4Data[selected], regionTop4Div);
+                renderTop4(regionTop4Data[selected], regionTop4Div, selected);
+
+                const selectedRegionIndex = regionPieChart.data.labels.indexOf(selected);
+                // setActiveElements + hoverOffset 조정
+                regionPieChart.setActiveElements([{ datasetIndex: 0, index: selectedRegionIndex }]);
+                regionPieChart.options.elements = {
+                    arc: {
+                        hoverOffset: function(ctx) {
+                            return ctx.dataIndex === selectedRegionIndex ? 40 : 0;
+                        }
+                    }
+                };
+                regionPieChart.update();
             } else {
                 regionDisplay.textContent = '';
                 regionTop4Div.innerHTML = '';
@@ -353,9 +423,23 @@
 
         partySelect.addEventListener('change', () => {
             const selected = partySelect.value;
+            partyPieChart.setActiveElements([]);
+            
             if (selected && partyAssets[selected]) {
                 partyDisplay.textContent = `${selected} 총 재산: ${partyAssets[selected].toLocaleString()}`;
-                renderTop4(partyTop4Data[selected], partyTop4Div);
+                renderTop4(partyTop4Data[selected], partyTop4Div, selected);
+                // 해당 정당이 몇 번째 index인지 찾기
+                const selectedPartyIndex = partyPieChart.data.labels.indexOf(selected);
+                // setActiveElements + hoverOffset 조정
+                partyPieChart.setActiveElements([{ datasetIndex: 0, index: selectedPartyIndex }]);
+                partyPieChart.options.elements = {
+                    arc: {
+                        hoverOffset: function(ctx) {
+                            return ctx.dataIndex === selectedPartyIndex ? 40 : 0;
+                        }
+                    }
+                };
+                partyPieChart.update();
             } else {
                 partyDisplay.textContent = '';
                 partyTop4Div.innerHTML = '';

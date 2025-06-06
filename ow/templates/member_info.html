@@ -10,11 +10,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenWallets - 의원 정보</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Arial', sans-serif;
       background-color: #f0f4fc;
       overflow: auto;
     }
@@ -34,12 +33,19 @@
 
     .profile-info {
       display: flex;
+      flex: 0 0 auto;
       flex-wrap: wrap;
       gap: 1.5rem;
+    }
+    
+    .profile-chart {
+      flex: 1 1 auto;
     }
 
     .info-card {
       flex: 1 1 100%;
+      max-width: 350px; /* 픽셀 기준 제한도 가능 */
+      width: 100%;
       background-color: #ffffff;
       border-radius: 12px;
       padding: 20px;
@@ -70,15 +76,6 @@
 
     .value {
       color: #555555;
-    }
-
-    .chart {
-      flex: 1;
-      min-width: 250px;
-      background-color: white;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 2rem;
     }
 
     .table-container {
@@ -121,6 +118,11 @@
     #table-start:focus {
         outline: none;
     }
+
+    canvas {
+      width: 100%; 
+      height: auto;
+    }
   </style>
 </head>
 <body>
@@ -130,7 +132,7 @@
         <div class="info-card">
           <h3>기본 정보</h3>
           <div class="info-item"><span class="label">의원명</span> <span class="value">{{ member.name }}</span></div>
-          <div class="info-item"><span class="label">총 재산</span> <span class="value">{{ member.total_assets|intcomma }} 원</span></div>
+          <div class="info-item"><span class="label">총 재산</span> <span class="value">{{ member.total_assets|intcomma }}</span></div>
           <div class="info-item"><span class="label">대수</span> <span class="value">{{ member.latest_age }}</span></div>
           <div class="info-item"><span class="label">한자</span> <span class="value">{{ member.chi_name }}</span></div>
           <div class="info-item"><span class="label">생년월일(음/양)</span> <span class="value">{{ member.birth }} ({{ member.birth_cd }})</span></div>
@@ -147,43 +149,44 @@
           {% endif %}
         </div>
       </div>
-      <div>
-      <h2>{{ member.name }} 의원의 재산 변화 추이</h2>
-      <canvas id="assetChart" width="600" height="300"></canvas>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script>
-          const labels = {{ graph_labels|safe }};
-          const data = {{ graph_data|safe }};
+      <div class="profile-chart">
+        <h2>{{ member.name }} 의원의 재산 변화 추이</h2>
+        <canvas id="assetChart"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const labels = {{ graph_labels|safe }};
+            const data = {{ graph_data|safe }};
 
-          const ctx = document.getElementById('assetChart').getContext('2d');
-          const assetChart = new Chart(ctx, {
-              type: 'line',
-              data: {
-                  labels: labels, // ['2022-03', '2023-03', ...]
-                  datasets: [{
-                      label: '재산(1000원)',
-                      data: data,    // [300000000, 350000000, ...]
-                      borderColor: 'rgba(75, 192, 192, 1)',
-                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                      fill: true,
-                      tension: 0.3,
-                  }]
-              },
-              options: {
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                          ticks: {
-                              callback: function(value) {
-                                  return value.toLocaleString();
-                              }
-                          }
-                      }
-                  }
-              }
-          });
-      </script>
+            const ctx = document.getElementById('assetChart').getContext('2d');
+            const assetChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels, // ['2022-03', '2023-03', ...]
+                    datasets: [{
+                        label: '재산(1000원)',
+                        data: data,    // [300000000, 350000000, ...]
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.3,
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
     </div>
+  </div>
     <div class="table-container" id="table-start">
       <table>
         <thead>
@@ -218,7 +221,6 @@
         </tbody>
       </table>
     </div>
-  </div>
   <div class="pagination">
         {% if page_obj.has_previous %}
             <a href="?page=1">&laquo;</a>

@@ -19,7 +19,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR,'ow/templates') # template 경로 추가
 
 #render에서 호스트하기 위함
 ALLOWED_HOSTS = ['.onrender.com']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://openwallets.onrender.com']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

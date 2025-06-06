@@ -2,7 +2,7 @@
 <html lang="ko">
 {% extends 'base.html' %}
 
-{% block title %}의원 상세 정보{% endblock %}
+{% block title %}OpenWallets - 의원 상세 정보{% endblock %}
 {% block subtitle %}개인 신상 및 재산 정보{% endblock %}
 
 {% block content %}
@@ -100,6 +100,10 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    a {
+      text-decoration: none;
+      color: black;
+    }
   </style>
 </head>
 <body>
@@ -117,11 +121,13 @@
           <div>성별: <span>{{member.gender}}</span></div>
           <div>정당: <span>{{member.party}}</span></div>
           <div>선거구: <span>{{member.electoral_district}}</span></div>
+          {% if member.position %}
           <div>직책: <span>{{member.position}}</span></div>
           <div>의원회: <span>{{member.committee}}</span></div>
           <div>의원실 주소: <span>{{member.office}}</span></div>
           <div>이메일: <span>{{member.email}}</span></div>
           <div>전화: <span>{{member.tel}}</span></div>
+          {%endif%}
           {% comment %} <div>학력 및 경력 사항: <span>{{member.history}}</span></div> {% endcomment %}
         </div>
       </div>

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from ow.models import Legislator, Asset
-from django.db.models import OuterRef, Subquery, Sum, F, Max
+from django.db.models import Sum
 from collections import defaultdict
 from django.db.models.functions import Left
 
@@ -19,13 +19,18 @@ def main_page(request):
     chunked_members = [numbered_members[i:i+4] for i in range(0, len(numbered_members), 4)]
 
     # 지역별 자산 합계 (지역 앞 2글자 기준)
-    assets_by_region_qs = Legislator.objects.exclude(electoral_district__isnull=True).annotate(
+    assets_by_region_qs = Legislator.objects.exclude(
+        electoral_district__isnull=True
+    ).exclude(
+        electoral_district__startswith='비례'
+    ).annotate(
         short_region=Left('electoral_district', 2)
     ).values('short_region').annotate(
         total_assets=Sum('total_assets')
     )
     region_assets = {item['short_region']: item['total_assets'] for item in assets_by_region_qs}
     regions = list(region_assets.keys())
+    region_asset_values = list(region_assets.values())
 
     # 정당별 자산 합계
     assets_by_party_qs = Legislator.objects.exclude(party__isnull=True).values('party').annotate(
@@ -33,6 +38,7 @@ def main_page(request):
     )
     party_assets = {item['party']: item['total_assets'] for item in assets_by_party_qs}
     parties = list(party_assets.keys())
+    party_asset_values = list(party_assets.values())
 
     # 지역별 상위 4명
     region_top4_data = {}
@@ -64,6 +70,8 @@ def main_page(request):
         'party_top4': party_top4_data,
         'regions': regions,
         'parties': parties,
+        'party_asset_values': party_asset_values,
+        'region_asset_values': region_asset_values,
     })
 
 

@@ -3,7 +3,7 @@ from ow.models import Legislator, Asset
 from django.db.models import Max, Sum
 
 class Command(BaseCommand):
-    help = '의원별 최신 연월 자산 합계를 계산하여 Legislator 모델에 저장합니다.'
+    help = '의원별 최신 연월 자산 합계를 계산하여 Legislator 모델에 저장.'
 
     def handle(self, *args, **options):
         count = 0
@@ -29,4 +29,4 @@ class Command(BaseCommand):
                 legislator.total_assets = total
                 legislator.save()
                 count += 1
-        self.stdout.write(f"{count}명의 의원 데이터가 갱신되었습니다.")
+        self.stdout.write(f"{count}명의 의원 데이터가 갱신.")

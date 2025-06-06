@@ -10,7 +10,7 @@ def main_page(request):
     top_members = Legislator.objects.order_by('-total_assets')[:20]
 
     # 순위 붙이기
-    numbered_members = [
+    numbered_members = [ 
         {'rank': idx + 1, 'member': member}
         for idx, member in enumerate(top_members)
     ]

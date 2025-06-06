@@ -107,15 +107,20 @@ def member_list(request):  # 의원 목록 페이지
     regions = sorted({d.split()[0] for d in districts if ' ' in d})  # 첫 단어 기준
 
     # 페이지네이션
-    paginator = Paginator(members, 10)
+    paginator = Paginator(members, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    current_page = page_obj.number
+    page_start = ((current_page - 1) // 10) * 10 + 1
+    page_end = min(page_start + 9, page_obj.paginator.num_pages)
+    page_range = range(page_start, page_end + 1)
 
     return render(request, 'member_list.html', {
         'order_by': order_by,
         'parties': parties,
         'regions': regions,
         'page_obj': page_obj,
+        'page_range': page_range,
         'query': query,
     })
 
@@ -124,7 +129,7 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
     # 여기선 일단 임시 데이터로 구성
     member = get_object_or_404(Legislator, member_id=member_id)
     asset = Asset.objects.filter(legislator=member).order_by('-report_year', '-report_month')
-    paginator = Paginator(asset, 10)  # 한 페이지에 10개
+    paginator = Paginator(asset, 20)
 
     # 연월별 자산 합계 계산
     assets_by_month = defaultdict(int)
@@ -139,12 +144,18 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
     # 정렬된 딕셔너리를 리스트 2개로 분리
     labels = sorted(assets_by_month.keys())
     values = [assets_by_month[key] for key in labels]
-
+    
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    current_page = page_obj.number
+    page_start = ((current_page - 1) // 10) * 10 + 1
+    page_end = min(page_start + 9, page_obj.paginator.num_pages)
+    page_range = range(page_start, page_end + 1)
+    
     return render(request, 'member_info.html', {
         'member': member, 
         'page_obj': page_obj,
+        'page_range': page_range,
         'graph_labels': labels,
         'graph_data': values,
     })

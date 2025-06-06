@@ -5,7 +5,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: |
       bash -c "
-      python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
-      gunicorn wsgi:application
+      python OpenWallets/manage.py migrate &&
+      python OpenWallets/manage.py collectstatic --noinput &&
+      gunicorn --chdir OpenWallets OpenWallets.wsgi:application
       "

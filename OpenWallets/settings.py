@@ -17,17 +17,20 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR,'ow/templates') # template 경로 추가
 
+#render에서 호스트하기 위함
+ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = []
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7(5dib)*zv!!5nhne%*xu%#8rjwkgx-5+kw_5kxsvdelhk(!s-'
-
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '개발용키')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 
 # Application definition
@@ -44,6 +47,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware', #베포 시, static file(CSS, JS 등) 띄우기 위함
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -7,7 +7,7 @@ from django.db.models.functions import Left
 
 def main_page(request):
     # 상위 20명 정렬
-    top_members = Legislator.objects.order_by('-total_assets')[:20]
+    top_members = Legislator.objects.filter(latest_age__contains='22대').order_by('-total_assets')[:20]
 
     # 순위 붙이기
     numbered_members = [ 
@@ -19,7 +19,9 @@ def main_page(request):
     chunked_members = [numbered_members[i:i+4] for i in range(0, len(numbered_members), 4)]
 
     # 지역별 자산 합계 (지역 앞 2글자 기준)
-    assets_by_region_qs = Legislator.objects.exclude(
+    assets_by_region_qs = Legislator.objects.filter(
+        latest_age__contains='22대'
+    ).exclude(
         electoral_district__isnull=True
     ).exclude(
         electoral_district__startswith='비례'
@@ -40,14 +42,14 @@ def main_page(request):
     parties = list(party_assets.keys())
     party_asset_values = list(party_assets.values())
 
-    # 지역별 상위 6명
+    # 지역별 상위 5명
     region_top5_data = {}
     for region in regions:
         top5 = Legislator.objects.filter(
             electoral_district__startswith=region
         ).order_by('-total_assets')[:5]
         region_top5_data[region] = [
-            {'name': m.name, 'total_assets': m.total_assets or 0}
+            {'name': m.name, 'total_assets': m.total_assets or 0, 'member_id': m.member_id}
             for m in top5
         ]
 
@@ -58,7 +60,7 @@ def main_page(request):
             party=party
         ).order_by('-total_assets')[:5]
         party_top5_data[party] = [
-            {'name': m.name, 'total_assets': m.total_assets or 0}
+            {'name': m.name, 'total_assets': m.total_assets or 0, 'member_id': m.member_id}
             for m in top5
         ]
 

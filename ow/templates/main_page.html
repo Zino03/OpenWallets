@@ -40,6 +40,18 @@
             height: 100%;
         }
 
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 50%;
+            background-color: #043b85;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 10px auto;
+        }
+
         .flex-container {
             display: flex;
             gap: 20px;
@@ -55,8 +67,7 @@
         }
 
         .slider-wrapper {
-            position: relative;
-            width: 1000px; /* 카드 4개 * (170 + 2*10)px */
+            width: 100%;
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -64,60 +75,32 @@
         }
 
         .slider-viewport {
-            width: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
             overflow: hidden;
             /* slider-page는 flex 컨테이너 */
         }
 
-        .slider-page {
-            display: flex;
-            /* gap으로 카드 간격 조절 */
-        }
-
         .slide-card {
-            flex: 0 0 175px;
-            background: #fff;
-            border-radius: 10px;
+            flex: 1 1 0;
+            border-radius: 20px;
             margin: 10px;
-            padding: 10px;
+            padding: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             text-align: center;
         }
+
         /* 버튼 */
         .slide-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 10;
             background: #043b85;
             color: white;
-            border: none;
             font-size: 12px;
-            font-weight: bold;
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: background 0.3s ease;
-        }
-
-        /* 왼쪽 버튼을 슬라이더 왼쪽 영역 밖으로 이동 (사이드바와 겹치지 않게) */
-        #prevBtn {
-            left: 0px;  /* 슬라이더 wrapper의 왼쪽 밖으로 */
-        }
-
-        /* 오른쪽 버튼도 슬라이더 오른쪽 밖으로 */
-        #nextBtn {
-            right: 20px;
-        }
-
-        a {
-            text-decoration: none;
-            color: black;
         }
 
         .region_name path,
@@ -163,7 +146,32 @@
             color: white;
             font-size: 1.5rem;  /* 글자 크게 */
             font-weight: bold;
-            margin-top: 30px;
+            margin: 5px;
+        }
+        .slide-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .top5-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .top5-rank {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #043b85;
+        }
+
+        .top5-info {
+            flex: 1;
+            text-align: left;
         }
     </style>
 </head>
@@ -175,10 +183,11 @@
                 <button class="slide-btn" id="prevBtn">&#10094;</button>
                 <div class="slider-viewport">
                     {% for page in chunked_members %}
-                    <div class="slider-page" style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px;">
+                    <div class="slider-page" style="width: 100%; display: {% if forloop.first %}flex{% else %}none{% endif %};">
                         {% for item in page %}
-                            <div class="slide-card">
-                                <strong>{{ item.rank }}.</strong> <a href="{% url 'member_info' item.member.member_id %}">{{ item.member.name }}</a><br>
+                            <div class="slide-card" data-party="{{ item.member.party }}" onclick="window.location='{% url 'member_info' item.member.member_id %}';" style="cursor: pointer;">
+                                <strong>{{ item.rank }}. {{ item.member.name }}<br></strong>
+                                정당: {{item.member.party}}<br>
                                 총 재산: {{ item.member.total_assets|intcomma }}
                             </div>
                         {% endfor %}
@@ -232,6 +241,7 @@
                         <!-- 선택한 지역 자산 금액 -->
                     </div>
                 </div>
+                <div style="margin-left: auto; font-size: 1.5rem; font-weight: bold;">Open by Region</div>
             </div>
             <div class="flex-container">
                 <div class="column">
@@ -243,10 +253,9 @@
                     <div class="name-card" id="regionNameCard">
                         <div id="regionNameDisplay">충북</div>
                     </div>
-                        <h4 style="font-size: 1.5rem;">Open by Region</h4>
-                    </div>
+                </div>
                 <div class="card-a" style="flex: 1.5; height:500px;">
-                    지역별 재산 비율
+                    <strong>지역별 재산 비율</strong>
                     <canvas id="regionPieChart"></canvas>
                     <script>
                         const regionCtx = document.getElementById('regionPieChart').getContext('2d');
@@ -294,7 +303,7 @@
                 </div>
                 <div class="card-a" style="flex: 1.5;">
                     <div id="map-container" style="width:100%">
-                        대한민국 지도
+                        <strong>대한민국 지도</strong>
                         {% include 'svg/korea_map.svg' %}
                     </div>
                 </div>
@@ -316,6 +325,7 @@
                         <!-- 선택한 정당 자산 금액 -->
                     </div>
                 </div>
+                <div style="margin-left: auto; font-size: 1.5rem; font-weight: bold;">Open by Political Party</div>
             </div>
             <div class="flex-container">
                 <div class="column">
@@ -327,10 +337,9 @@
                     <div class="name-card" id="partyNameCard">
                         <div id="partyNameDisplay">국민의힘</div>
                     </div>
-                    <h4 style="font-size: 1.2rem;">Open by Political Party</h4>
                 </div>
                 <div class="card-a" style="flex:3; height:500px;">
-                    정당별 재산 비율
+                    <strong>정당별 재산 비율</strong>
                     <canvas id="partyPieChart"></canvas>
                     <script>
                         const partyCtx = document.getElementById('partyPieChart').getContext('2d');
@@ -404,12 +413,19 @@
             const partyTop5Div = document.getElementById('partyTop5');
 
             function renderTop5(list, container, title_name) {
-                let html = `<div "style=white-space: nowrap;"">${title_name} 재산 상위 TOP5</div>`;
-                html += '<ol>';
-                list.forEach(item => {
-                    html += `<li>${item.name}</br>총 재산: ${item.total_assets.toLocaleString()}</li>`;
+                let html = `<div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">${title_name} 재산 상위 TOP5</div>`;
+                html += '<div class="top5-list">';
+                list.forEach((item, index) => {
+                    html += `
+                        <div class="top5-item" onclick="window.location='/members/${item.member_id}/';" style="cursor: pointer;">
+                            <div class="top5-rank">${index + 1}</div>
+                            <div class="top5-info">
+                                ${item.name}<br>
+                                총 재산: ${item.total_assets.toLocaleString()}
+                            </div>
+                        </div>`;
                 });
-                html += '</ol>';
+                html += '</div>';
                 container.innerHTML = html;
             }
 
@@ -485,6 +501,31 @@
                 '조국혁신당': '#06275E',
                 '진보당': '#D6001C',
             };
+
+            // HEX → RGBA 변환 함수
+            function hexToRgba(hex, alpha) {
+                hex = hex.replace('#', '');
+                if (hex.length === 3) {
+                    hex = hex.split('').map(char => char + char).join('');
+                }
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+
+            // 슬라이더 카드 색상 적용
+            document.querySelectorAll('.slide-card').forEach(card => {
+                const party = card.getAttribute('data-party');
+                const hexColor = partyColorMap[party];
+                if (hexColor) {
+                    card.style.backgroundColor = hexToRgba(hexColor, 0.5);
+                    card.style.color = 'black';
+                } else {
+                    card.style.backgroundColor = 'rgba(240,240,240,0.85)';
+                    card.style.color = 'black';
+                }
+            });
 
             partySelect.addEventListener('change', () => {
                 const selected = partySelect.value;

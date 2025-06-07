@@ -153,6 +153,18 @@
             gap: 10px; 
             margin-bottom: 5px;
         }
+
+        .name-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;  /* 원하는 높이로 조절 */
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;  /* 글자 크게 */
+            font-weight: bold;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -224,12 +236,15 @@
             <div class="flex-container">
                 <div class="column">
                     <div class="card-a" style="flex: 0.9;">
-                        <div id="regionTop4" >
-                            <!-- 선택 지역 상위 4명 의원 목록 -->
+                        <div id="regionTop5" >
+                            <!-- 선택 지역 상위 5명 의원 목록 -->
                         </div>
                     </div>
-                    Open by Region
-                </div>
+                    <div class="name-card" id="regionNameCard">
+                        <div id="regionNameDisplay">충북</div>
+                    </div>
+                        <h4 style="font-size: 1.5rem;">Open by Region</h4>
+                    </div>
                 <div class="card-a" style="flex: 1.5; height:500px;">
                     지역별 재산 비율
                     <canvas id="regionPieChart"></canvas>
@@ -265,8 +280,10 @@
                                     tooltip: {
                                         callbacks: {
                                             label: function(context) {
-                                                const value = context.raw.toLocaleString();
-                                                return `${context.label}: ${value} 원`;
+                                                const value = context.raw;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
                                             }
                                         }
                                     }
@@ -303,16 +320,14 @@
             <div class="flex-container">
                 <div class="column">
                     <div class="card-a" style="flex:1;">
-                        <div id="partyTop4">
-                            <!-- 선택 정당 상위 4명 의원 목록 -->
+                        <div id="partyTop5">
+                            <!-- 선택 정당 상위 5명 의원 목록 -->
                         </div>
                     </div>
-                    <div class="card-a">
-                        <div>
-                            국민의힘
-                        </div>
+                    <div class="name-card" id="partyNameCard">
+                        <div id="partyNameDisplay">국민의힘</div>
                     </div>
-                    Open by Political Party
+                    <h4 style="font-size: 1.2rem;">Open by Political Party</h4>
                 </div>
                 <div class="card-a" style="flex:3; height:500px;">
                     정당별 재산 비율
@@ -349,8 +364,10 @@
                                     tooltip: {
                                         callbacks: {
                                             label: function(context) {
-                                                const value = context.raw.toLocaleString();
-                                                return `${context.label}: ${value} 원`;
+                                                const value = context.raw;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
                                             }
                                         }
                                     }
@@ -371,23 +388,23 @@
             const regionAssets = {{ region_assets|safe }};
             const partyAssets = {{ party_assets|safe }};
             
-            // top4 데이터도 미리 넘겨서 사용 (views.py에서 JSON 직렬화 후 전달 필요)
+            // top5 데이터도 미리 넘겨서 사용 (views.py에서 JSON 직렬화 후 전달 필요)
             // 예시:
-            // regionTop4Data = { '충북': [{name:'김아무개', total_assets:123456}, ...], ... }
-            // partyTop4Data = { '국민의힘': [{name:'박아무개', total_assets:654321}, ...], ... }
-            const regionTop4Data = {{ region_top4|safe }};
-            const partyTop4Data = {{ party_top4|safe }};
+            // regionTop5Data = { '충북': [{name:'김아무개', total_assets:123555}, ...], ... }
+            // partyTop5Data = { '국민의힘': [{name:'박아무개', total_assets:555321}, ...], ... }
+            const regionTop5Data = {{ region_top5|safe }};
+            const partyTop5Data = {{ party_top5|safe }};
 
             const regionSelect = document.getElementById('regionSelect');
             const regionDisplay = document.getElementById('regionAssetDisplay');
-            const regionTop4Div = document.getElementById('regionTop4');
+            const regionTop5Div = document.getElementById('regionTop5');
 
             const partySelect = document.getElementById('partySelect');
             const partyDisplay = document.getElementById('partyAssetDisplay');
-            const partyTop4Div = document.getElementById('partyTop4');
+            const partyTop5Div = document.getElementById('partyTop5');
 
-            function renderTop4(list, container, title_name) {
-                let html = `<div style=white-space: nowrap;>${title_name} 재산 상위 TOP4</div>`;
+            function renderTop5(list, container, title_name) {
+                let html = `<div "style=white-space: nowrap;"">${title_name} 재산 상위 TOP5</div>`;
                 html += '<ol>';
                 list.forEach(item => {
                     html += `<li>${item.name}</br>총 재산: ${item.total_assets.toLocaleString()}</li>`;
@@ -395,6 +412,26 @@
                 html += '</ol>';
                 container.innerHTML = html;
             }
+
+            const regionColorMap = {
+                '강원': '#4D9FE6',
+                '경기': '#FF5C5C',
+                '경남': '#66DA8C',
+                '경북': '#FFD54F',
+                '광주': '#CE93D8',
+                '대구': '#F48FB1',
+                '대전': '#FFAB91',
+                '부산': '#4DB6AC',
+                '서울': '#A1887F',
+                '세종': '#90A4AE',
+                '울산': '#EF9A9A',
+                '인천': '#7986CB',
+                '전남': '#F06292',
+                '전북': '#4DD0E1',
+                '제주': '#AED581',
+                '충남': '#FF8A65',
+                '충북': '#BA68C8',
+            };
 
             regionSelect.addEventListener('change', () => {
                 const mapContainer = document.getElementById('map-container');
@@ -410,24 +447,44 @@
 
                 if (selected && regionAssets[selected]) {
                     regionDisplay.textContent = `${selected} 총 재산: ${regionAssets[selected].toLocaleString()}`;
-                    renderTop4(regionTop4Data[selected], regionTop4Div, selected);
+                    renderTop5(regionTop5Data[selected], regionTop5Div, selected);
+
+                    document.getElementById('regionNameDisplay').textContent = selected;
+                    document.getElementById('regionNameCard').style.backgroundColor = regionColorMap[selected] || '#888888';
 
                     const selectedRegionIndex = regionPieChart.data.labels.indexOf(selected);
                     // setActiveElements + hoverOffset 조정
                     regionPieChart.setActiveElements([{ datasetIndex: 0, index: selectedRegionIndex }]);
-                    regionPieChart.options.elements = {
-                        arc: {
-                            hoverOffset: function(ctx) {
-                                return ctx.dataIndex === selectedRegionIndex ? 40 : 0;
-                            }
-                        }
-                    };
+                    regionPieChart.options.elements.arc.hoverOffset = 20;  // 일반 hover는 작게
+
+                    regionPieChart.data.datasets[0].borderColor = regionPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedRegionIndex ? '#ff6600' : '#ffffff';  // 선택된 것은 검정, 나머지는 흰색 (투명 효과)
+                    });
+
+                    regionPieChart.data.datasets[0].borderWidth = regionPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedRegionIndex ? 5 : 1;  // 선택 항목은 테두리 두껍게 고정
+                    });
                     regionPieChart.update();
                 } else {
                     regionDisplay.textContent = '';
-                    regionTop4Div.innerHTML = '';
+                    regionTop5Div.innerHTML = '';
                 }
             });
+
+            const partyColorMap = {
+                '개혁신당': '#D74F00',
+                '국민의힘': '#FF1D1D',
+                '기본소득당': '#24FFD3',
+                '더불어민주당': '#2400C3',
+                '무소속': '#9966FF',
+                '사회민주당': '#FFA83E',
+                '새로운미래': '#45BABD',
+                '열린민주당': '#FBC700',
+                '자유통일당': '#FFED00',
+                '정의당': '#0958A7',
+                '조국혁신당': '#06275E',
+                '진보당': '#D6001C',
+            };
 
             partySelect.addEventListener('change', () => {
                 const selected = partySelect.value;
@@ -435,18 +492,24 @@
                 
                 if (selected && partyAssets[selected]) {
                     partyDisplay.textContent = `${selected} 총 재산: ${partyAssets[selected].toLocaleString()}`;
-                    renderTop4(partyTop4Data[selected], partyTop4Div, selected);
+                    renderTop5(partyTop5Data[selected], partyTop5Div, selected);
+
+                    document.getElementById('partyNameDisplay').textContent = selected;
+                    document.getElementById('partyNameCard').style.backgroundColor = partyColorMap[selected] || '#888888';
+
                     // 해당 정당이 몇 번째 index인지 찾기
                     const selectedPartyIndex = partyPieChart.data.labels.indexOf(selected);
                     // setActiveElements + hoverOffset 조정
                     partyPieChart.setActiveElements([{ datasetIndex: 0, index: selectedPartyIndex }]);
-                    partyPieChart.options.elements = {
-                        arc: {
-                            hoverOffset: function(ctx) {
-                                return ctx.dataIndex === selectedPartyIndex ? 40 : 0;
-                            }
-                        }
-                    };
+                    partyPieChart.options.elements.arc.hoverOffset = 20;  // 일반 hover는 작게
+
+                    partyPieChart.data.datasets[0].borderColor = partyPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedPartyIndex ? '#ff6600' : '#ffffff';  // 선택된 것은 검정, 나머지는 흰색 (투명 효과)
+                    });
+
+                    partyPieChart.data.datasets[0].borderWidth = partyPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedPartyIndex ? 5 : 1;  // 선택 항목은 테두리 두껍게 고정
+                    });
                     partyPieChart.update();
                 } else {
                     partyDisplay.textContent = '';

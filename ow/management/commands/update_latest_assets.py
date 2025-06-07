@@ -8,19 +8,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = 0
         for legislator in Legislator.objects.all():
-            # 해당 의원의 자산 중 최신 연월 구하기
-            latest = (
+            # 최신 연월 조합을 먼저 구함
+            latest_asset = (
                 Asset.objects
                 .filter(legislator=legislator)
-                .aggregate(
-                    max_year=Max('report_year'),
-                    max_month=Max('report_month')
-                )
+                .order_by('-report_year', '-report_month')
+                .values('report_year', 'report_month')
+                .first()
             )
-            max_year = latest['max_year']
-            max_month = latest['max_month']
-
-            if max_year and max_month:
+            if latest_asset:
+                max_year = latest_asset['report_year']
+                max_month = latest_asset['report_month']
+                # 최신 연월의 자산 합계
                 total = (
                     Asset.objects
                     .filter(legislator=legislator, report_year=max_year, report_month=max_month)

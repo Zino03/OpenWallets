@@ -28,7 +28,6 @@
       display: flex;
       gap: 2rem;
       margin-bottom: 2rem;
-      flex-wrap: wrap;
     }
 
     .profile-info {
@@ -163,7 +162,7 @@
                 data: {
                     labels: labels, // ['2022-03', '2023-03', ...]
                     datasets: [{
-                        label: '재산(1000원)',
+                        label: '재산 변화 추이',
                         data: data,    // [300000000, 350000000, ...]
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -177,7 +176,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return value.toLocaleString();
+                                    return value.toLocaleString() + " 천 원";
                                 }
                             }
                         }
@@ -196,10 +195,10 @@
             <th>관계</th>
             <th>재산종류</th>
             <th>소재지면적 등 권리의 명세</th>
-            <th>종전가액</th>
-            <th>증가액</th>
-            <th>감소액</th>
-            <th>현재가액</th>
+            <th>종전가액(천 원)</th>
+            <th>증가액(천 원)</th>
+            <th>감소액(천 원)</th>
+            <th>현재가액(천 원)</th>
             <th>변동사유</th>
           </tr>
         </thead>
@@ -257,8 +256,7 @@
       if (window.location.hash === '#table-start') {
           const el = document.getElementById('table-start');
           if (el) {
-              // 조금 여유 있게 100px 위로 보이게 하기
-              const y = el.getBoundingClientRect().top + window.scrollY - 100;
+              const y = el.getBoundingClientRect().top + window.scrollY;
               window.scrollTo({ top: y, behavior: 'smooth' });
           }
       }

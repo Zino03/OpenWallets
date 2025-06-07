@@ -85,7 +85,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
     }
 
     .title {
@@ -100,11 +100,18 @@
     <!-- 고정된 사이드바 -->
     <aside class="sidebar">
       <h1 class="title">OpenWallets</h1>
-      <nav>
-        <a href="{% url 'main_page' %}">대시보드</a>
-        <a href="{% url 'member_list' %}">의원  목록</a>
-        <a href="{% url 'api_page' %}">API</a>
-        <a href="{% url 'guide_page' %}">이용안내</a>
+      <nav style="flex: 1; display: flex; flex-direction: column;">
+        <div style="flex: 1;">
+            <a href="{% url 'main_page' %}">대시보드</a>
+            <a href="{% url 'member_list' %}">의원  목록</a>
+            <a href="{% url 'api_page' %}">API</a>
+            <a href="{% url 'guide_page' %}">이용안내</a>
+        </div>
+        <div style="font-size: 0.9rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+            기준 날짜: 2025-04-07<br>
+            대수: 22대<br>
+            금액 단위: 천 원
+        </div>
       </nav>
     </aside>
 

@@ -7,10 +7,10 @@ from django.db.models.functions import Left
 
 def main_page(request):
     # 상위 20명 정렬
-    top_members = Legislator.objects.order_by('-total_assets')[:20]
+    top_members = Legislator.objects.filter(latest_age__contains='22대').order_by('-total_assets')[:20]
 
     # 순위 붙이기
-    numbered_members = [
+    numbered_members = [ 
         {'rank': idx + 1, 'member': member}
         for idx, member in enumerate(top_members)
     ]
@@ -19,7 +19,9 @@ def main_page(request):
     chunked_members = [numbered_members[i:i+4] for i in range(0, len(numbered_members), 4)]
 
     # 지역별 자산 합계 (지역 앞 2글자 기준)
-    assets_by_region_qs = Legislator.objects.exclude(
+    assets_by_region_qs = Legislator.objects.filter(
+        latest_age__contains='22대'
+    ).exclude(
         electoral_district__isnull=True
     ).exclude(
         electoral_district__startswith='비례'
@@ -40,34 +42,34 @@ def main_page(request):
     parties = list(party_assets.keys())
     party_asset_values = list(party_assets.values())
 
-    # 지역별 상위 4명
-    region_top4_data = {}
+    # 지역별 상위 5명
+    region_top5_data = {}
     for region in regions:
-        top4 = Legislator.objects.filter(
+        top5 = Legislator.objects.filter(
             electoral_district__startswith=region
-        ).order_by('-total_assets')[:4]
-        region_top4_data[region] = [
-            {'name': m.name, 'total_assets': m.total_assets or 0}
-            for m in top4
+        ).order_by('-total_assets')[:5]
+        region_top5_data[region] = [
+            {'name': m.name, 'total_assets': m.total_assets or 0, 'member_id': m.member_id}
+            for m in top5
         ]
 
-    # 정당별 상위 4명
-    party_top4_data = {}
+    # 정당별 상위 5명
+    party_top5_data = {}
     for party in parties:
-        top4 = Legislator.objects.filter(
+        top5 = Legislator.objects.filter(
             party=party
-        ).order_by('-total_assets')[:4]
-        party_top4_data[party] = [
-            {'name': m.name, 'total_assets': m.total_assets or 0}
-            for m in top4
+        ).order_by('-total_assets')[:5]
+        party_top5_data[party] = [
+            {'name': m.name, 'total_assets': m.total_assets or 0, 'member_id': m.member_id}
+            for m in top5
         ]
 
     return render(request, 'main_page.html', {
         'chunked_members': chunked_members,
         'region_assets': region_assets,
         'party_assets': party_assets,
-        'region_top4': region_top4_data,
-        'party_top4': party_top4_data,
+        'region_top5': region_top5_data,
+        'party_top5': party_top5_data,
         'regions': regions,
         'parties': parties,
         'party_asset_values': party_asset_values,
@@ -129,7 +131,7 @@ def member_info(request, member_id): # 의원 상세 정보 페이지
     # 여기선 일단 임시 데이터로 구성
     member = get_object_or_404(Legislator, member_id=member_id)
     asset = Asset.objects.filter(legislator=member).order_by('-report_year', '-report_month')
-    paginator = Paginator(asset, 20)
+    paginator = Paginator(asset, 10)
 
     # 연월별 자산 합계 계산
     assets_by_month = defaultdict(int)

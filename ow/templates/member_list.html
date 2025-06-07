@@ -10,7 +10,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>의원 목록 - OpenWallets</title>
   <style>
     body {
       margin: 0;
@@ -29,7 +28,7 @@
       width: 100%;
       border-collapse: collapse;
       background-color: white;
-      margin-top: 20px;
+      margin-top: 5px;
       border-radius: 10px;
       overflow: hidden;
     }
@@ -105,15 +104,15 @@
           <th>생년월일</th>
           <th>정당</th>
           <th>선거구</th>
-          <th>총 재산</th>
+          <th>총 재산(천 원)</th>
         </tr>
       </thead>
       <tbody>
         {% for member in page_obj %}
-                <tr>
+                <tr onclick="window.location='{% url 'member_info' member.member_id %}';" style="cursor: pointer;">
                     <td>{{ forloop.counter }}</td>
                     <td>{{ member.latest_age }}</td>
-                    <td><a href="{% url 'member_info' member.member_id %}">{{ member.name }}</a></td>
+                    <td>{{ member.name }}</td>
                     <td>{{ member.birth }}</td>
                     <td>{{ member.party }}</td>
                     <td>{{ member.electoral_district}}</td>
@@ -124,7 +123,7 @@
                         정보 없음
                       {% endif %}
                     </td>
-                </tr>
+                  </tr>
                 {% endfor %}
       </tbody>
     </table>

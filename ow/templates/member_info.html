@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+<!-- base.html 템플릿을 상속 받음 -->
 {% extends 'base.html' %}
 
 {% block title %}OpenWallets - 의원 상세 정보{% endblock %}
@@ -14,33 +15,32 @@
     body {
       margin: 0;
       font-family: 'Arial', sans-serif;
-      background-color: #f0f4fc;
-      overflow: auto;
     }
 
+    /* 메인 영역 설정 (중앙 정렬) */
     .main {
       flex: 1;
-      max-width: 1000px;
       margin: 0 auto;
     }
 
+    /* 프로필(기본 정보 + 차트) 영역 flex로 나눔 */
     .profile {
       display: flex;
       gap: 2rem;
       margin-bottom: 2rem;
     }
-
+    /* 프로필 기본정보 카드 영역 */
     .profile-info {
       display: flex;
       flex: 0 0 auto;
       flex-wrap: wrap;
       gap: 1.5rem;
     }
-    
+    /* 프로필 차트 영역 */
     .profile-chart {
       flex: 1 1 auto;
     }
-
+    /* 프로필 카드 디자인 */
     .info-card {
       flex: 1 1 100%;
       max-width: 350px; /* 픽셀 기준 제한도 가능 */
@@ -50,39 +50,30 @@
       padding: 20px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
-
-    .info-card h3 {
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-      color: #043b85;
-    }
-
+    /* 프로필 카드 안의 항목들 (레이블 + 값) */
     .info-item {
       display: grid;
       grid-template-columns: 120px 1fr;
       padding: 0.2rem;
       border-bottom: 1px solid #f0f0f0;
     }
-
     .info-item:last-child {
       border-bottom: none;
     }
-
     .label {
       font-weight: bold;
       color: #333333;
     }
-
     .value {
       color: #555555;
     }
 
+    /* 테이블 영역 */
     .table-container {
       overflow-x: auto;
       width: 100%;
       margin-bottom: 2rem;
     }
-
     table {
       min-width: 1200px;
       width: max-content;
@@ -91,33 +82,33 @@
       border-radius: 10px;
       overflow: hidden;
     }
-
     th, td {
       padding: 0.75rem;
       border-bottom: 1px solid #ddd;
       text-align: center;
     }
-
     th {
       background-color: #e6efff;
     }
 
+    /* 페이지네이션 영역 */
     .pagination {
       margin-top: 20px;
       display: flex;
       justify-content: center;
       gap: 10px;
     }
-    
     a {
       text-decoration: none;
       color: black;
     }
 
+    /* 스크롤 포커스 제거 */
     #table-start:focus {
         outline: none;
     }
 
+    /* Chart.js canvas 반응형 설정 */
     canvas {
       width: 100%; 
       height: auto;
@@ -126,10 +117,12 @@
 </head>
 <body>
   <div class="main">
+    <!-- 상단 프로필 영역 (기본 정보 + 차트) -->
     <div class="profile">
+      <!-- 프로필 정보 카드 -->
       <div class="profile-info">
         <div class="info-card">
-          <h3>기본 정보</h3>
+          <div style="margin-bottom: 1rem; font-size: 1.25rem; color: #043b85;"><strong>기본 정보</strong></div>
           <div class="info-item"><span class="label">의원명</span> <span class="value">{{ member.name }}</span></div>
           <div class="info-item"><span class="label">총 재산</span> <span class="value">{{ member.total_assets|intcomma }}</span></div>
           <div class="info-item"><span class="label">대수</span> <span class="value">{{ member.latest_age }}</span></div>
@@ -139,31 +132,34 @@
           <div class="info-item"><span class="label">정당</span> <span class="value">{{ member.party }}</span></div>
           <div class="info-item"><span class="label">선거구</span> <span class="value">{{ member.electoral_district }}</span></div>
           
+          <!-- 선택적 정보 (있을 때만 표시) -->
           {% if member.position %}
           <div class="info-item"><span class="label">직책</span> <span class="value">{{ member.position }}</span></div>
           <div class="info-item"><span class="label">의원회</span> <span class="value">{{ member.committee }}</span></div>
-          <div class="info-item"><span class="label">의원실 주소</span> <span class="value">{{ member.office }}</span></div>
+          <div class="info-item"><span class="label">의원실 호실</span> <span class="value">{{ member.office }}</span></div>
           <div class="info-item"><span class="label">이메일</span> <span class="value">{{ member.email }}</span></div>
           <div class="info-item"><span class="label">전화</span> <span class="value">{{ member.tel }}</span></div>
           {% endif %}
         </div>
       </div>
+      <!-- 재산 변화 차트 영역 -->
       <div class="profile-chart">
         <h2>{{ member.name }} 의원의 재산 변화 추이</h2>
         <canvas id="assetChart"></canvas>
+        <!-- Chart.js 라이브러리 사용 -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            const labels = {{ graph_labels|safe }};
-            const data = {{ graph_data|safe }};
+            const labels = {{ graph_labels|safe }}; // x축: 연월
+            const data = {{ graph_data|safe }}; // y축: 금액
 
             const ctx = document.getElementById('assetChart').getContext('2d');
             const assetChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels, // ['2022-03', '2023-03', ...]
+                    labels: labels,
                     datasets: [{
                         label: '재산 변화 추이',
-                        data: data,    // [300000000, 350000000, ...]
+                        data: data,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         fill: true,
@@ -186,79 +182,85 @@
         </script>
     </div>
   </div>
-    <div class="table-container" id="table-start">
-      <table>
-        <thead>
-          <tr>
-            <th>연월</th>
-            <th>재산구분</th>
-            <th>관계</th>
-            <th>재산종류</th>
-            <th>소재지면적 등 권리의 명세</th>
-            <th>종전가액(천 원)</th>
-            <th>증가액(천 원)</th>
-            <th>감소액(천 원)</th>
-            <th>현재가액(천 원)</th>
-            <th>변동사유</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for asset in page_obj %}
-          <tr>
-            <td>{{asset.report_year}}.{{asset.report_month}}</td>
-            <td>{{asset.asset_type}}</td>
-            <td>{{asset.relation}}</td>
-            <td>{{asset.kind}}</td>
-            <td>{{asset.detail}}</td>
-            <td>{{asset.origin_valuation}}</td>
-            <td>{{asset.increased_amount}}</td>
-            <td>{{asset.decreased_amount}}</td>
-            <td>{{asset.current_valuation}}</td>
-            <td>{{asset.reason_for_change}}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  <div class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo;</a>
-            <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
-        {% endif %}
 
-        {% for num in page_range %}
-            {% if page_obj.number == num %}
-                <strong>{{ num }}</strong>
-            {% else %}
-                <a href="?page={{ num }}">{{ num }}</a>
-            {% endif %}
+  <!-- 자산 상세 테이블 영역 -->
+  <div class="table-container" id="table-start">
+    <table>
+      <thead>
+        <tr>
+          <th>연월</th>
+          <th>재산구분</th>
+          <th>관계</th>
+          <th>재산종류</th>
+          <th>소재지면적 등 권리의 명세</th>
+          <th>종전가액(천 원)</th>
+          <th>증가액(천 원)</th>
+          <th>감소액(천 원)</th>
+          <th>현재가액(천 원)</th>
+          <th>변동사유</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for asset in page_obj %}
+        <tr>
+          <td>{{asset.report_year}}.{{asset.report_month}}</td>
+          <td>{{asset.asset_type}}</td>
+          <td>{{asset.relation}}</td>
+          <td>{{asset.kind}}</td>
+          <td>{{asset.detail}}</td>
+          <td>{{asset.origin_valuation}}</td>
+          <td>{{asset.increased_amount}}</td>
+          <td>{{asset.decreased_amount}}</td>
+          <td>{{asset.current_valuation}}</td>
+          <td>{{asset.reason_for_change}}</td>
+        </tr>
         {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
-        {% endif %}
-      </div>
+  <!-- 페이지네이션 영역 -->
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+          <a href="?page=1">&laquo;</a> <!-- 첫 페이지로 -->
+          <a href="?page={{ page_obj.previous_page_number }}">&lt;</a> <!-- 이전 페이지 -->
+      {% endif %}
+
+      <!-- 페이지 번호 출력 -->
+      {% for num in page_range %}
+          {% if page_obj.number == num %}
+              <strong>{{ num }}</strong>
+          {% else %}
+              <a href="?page={{ num }}">{{ num }}</a>
+          {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}">&gt;</a> <!-- 다음 페이지 -->
+          <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a> <!-- 마지막 페이지 -->
+      {% endif %}
+    </div>
+
   <script>
     // 페이지 이동 직전에 현재 스크롤 위치 저장
     document.querySelectorAll('.pagination a').forEach(link => {
-          link.addEventListener('click', function(e) {
-          // 스크롤 위치 저장
-          localStorage.setItem('scrollPosition', window.scrollY);
-          const url = new URL(link.href, window.location.origin);
-          url.hash = 'table-start';
-          link.href = url.toString();
-        });
+      link.addEventListener('click', function(e) {
+        // 스크롤 위치 저장
+        localStorage.setItem('scrollPosition', window.scrollY);
+        const url = new URL(link.href, window.location.origin);
+        url.hash = 'table-start';
+        link.href = url.toString();
+      });
     });
 
     // 페이지 로드 시 복원
     window.addEventListener('load', function() {
       if (window.location.hash === '#table-start') {
-          const el = document.getElementById('table-start');
-          if (el) {
-              const y = el.getBoundingClientRect().top + window.scrollY;
-              window.scrollTo({ top: y, behavior: 'smooth' });
-          }
+        const el = document.getElementById('table-start');
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
       }
   });
   </script>

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
+<!-- base.html 템플릿을 상속 받음 -->
 {% extends 'base.html' %}
 
 {% block title %}OpenWallets - 의원 목록{% endblock %}
-{% block subtitle %}의원 목록{% endblock %}
+{% block subtitle %}국회의원 목록{% endblock %}
 
 {% block content %}
 {% load humanize %}
@@ -14,8 +15,9 @@
     body {
       margin: 0;
       font-family: 'Arial', sans-serif;
-      background-color: #f3f6fb;
     }
+
+    /* 헤더 영역 (상단 타이틀 + 필터 form) */
     .header {
       display: flex;
       justify-content: space-between;
@@ -24,6 +26,8 @@
     .header h1 {
       font-size: 20px;
     }
+
+    /* 테이블 스타일 */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -40,52 +44,55 @@
     th {
       background-color: #e3ecfa;
     }
+
+    /* 페이지네이션 영역 스타일 */
     .pagination {
       margin-top: 20px;
       display: flex;
       justify-content: center;
       gap: 10px;
     }
-    .page-btn {
-      padding: 8px 12px;
-      background-color: #e3ecfa;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    a {
+      text-decoration: none;
+      color: black;
     }
+
+    /* 필터 영역 (정당/지역/정렬 필터) */
     .filters {
       margin-top: 10px;
       display: flex;
       gap: 10px;
       justify-content: flex-end;
     }
-    a {
-      text-decoration: none;
-      color: black;
-    }
+
   </style>
 </head>
 <body>
   <div class="content">
+    <!-- 헤더 영역 (상단 타이틀 + 필터 form) -->
     <div class="header">
-      <h1>의원 목록&emsp;<small>2025-04-07 기준</small></h1>
+      <h1>의원 목록&emsp;</h1>
+      <!-- 필터 form (정당 / 지역 / 정렬기준) -> 드롭박스 변경 시 자동 submit -->
       <form method="get" action=".">
-          <label>정당:</label>
-            <select name="party" onchange="this.form.submit()">
-              <option value="">전체</option>
-              {% for p in parties %}
-                <option value="{{ p }}" {% if request.GET.party == p %}selected{% endif %}>{{ p }}</option>
-              {% endfor %}
-            </select>
+        <!-- 정당 필터 -->
+        <label>정당:</label>
+          <select name="party" onchange="this.form.submit()">
+            <option value="">전체</option>
+            {% for p in parties %}
+              <option value="{{ p }}" {% if request.GET.party == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+          </select>
 
-            <label>지역(시/도):</label>
-            <select name="region" onchange="this.form.submit()">
-              <option value="">전체</option>
-              {% for r in regions %}
-                <option value="{{ r }}" {% if request.GET.region == r %}selected{% endif %}>{{ r }}</option>
-              {% endfor %}
-            </select>
+        <!-- 지역 필터 -->
+        <label>지역(시/도):</label>
+        <select name="region" onchange="this.form.submit()">
+          <option value="">전체</option>
+          {% for r in regions %}
+            <option value="{{ r }}" {% if request.GET.region == r %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
 
+        <!-- 정렬 기준 필터 -->
         <label>정렬 기준:</label>
         <select name="order_by" onchange="this.form.submit()">
           <option value="name" {% if request.GET.order_by == "name" %}selected{% endif %}>이름순</option>
@@ -93,8 +100,8 @@
         </select>
       </form>
     </div>
-    </div>
 
+  <!-- 의원 목록 테이블 -->
     <table>
       <thead>
         <tr>
@@ -109,44 +116,47 @@
       </thead>
       <tbody>
         {% for member in page_obj %}
-                <tr onclick="window.location='{% url 'member_info' member.member_id %}';" style="cursor: pointer;">
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ member.latest_age }}</td>
-                    <td>{{ member.name }}</td>
-                    <td>{{ member.birth }}</td>
-                    <td>{{ member.party }}</td>
-                    <td>{{ member.electoral_district}}</td>
-                    <td>
-                      {% if member.total_assets != None %}
-                        {{ member.total_assets|intcomma }}
-                      {% else %}
-                        정보 없음
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endfor %}
+        <!-- 각 행을 클릭 시 해당 의원 상세 페이지로 이동 -->
+          <tr onclick="window.location='{% url 'member_info' member.member_id %}';" style="cursor: pointer;">
+            <td>{{ page_obj.start_index|add:forloop.counter|add:"-1" }}</td> 
+            <td>{{ member.latest_age }}</td>
+            <td>{{ member.name }}</td>
+            <td>{{ member.birth }}</td>
+            <td>{{ member.party }}</td>
+            <td>{{ member.electoral_district}}</td>
+            <td>
+              {% if member.total_assets != None %}
+                {{ member.total_assets|intcomma }} <!-- 총 재산 (천 단위 쉼표 적용) -->
+              {% else %}
+                정보 없음
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
 
+  <!-- 페이지네이션 영역 -->
     <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo;</a>
-                <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
-            {% endif %}
+      {% if page_obj.has_previous %}
+          <a href="?page=1">&laquo;</a> <!-- 첫 페이지로 -->
+          <a href="?page={{ page_obj.previous_page_number }}">&lt;</a> <!-- 이전 페이지 -->
+      {% endif %}
 
-            {% for num in page_range %}
-                {% if page_obj.number == num %}
-                    <strong>{{ num }}</strong>
-                {% else %}
-                    <a href="?page={{ num }}">{{ num }}</a>
-                {% endif %}
-            {% endfor %}
+      <!-- 페이지 번호 출력 -->
+      {% for num in page_range %}
+          {% if page_obj.number == num %}
+              <strong>{{ num }}</strong>
+          {% else %}
+              <a href="?page={{ num }}">{{ num }}</a>
+          {% endif %}
+      {% endfor %}
 
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
-            {% endif %}
-        </div>
+      {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}">&gt;</a> <!-- 다음 페이지 -->
+          <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a> <!-- 마지막 페이지 -->
+      {% endif %}
+    </div>
   </div>
 </body>
 {% endblock %}

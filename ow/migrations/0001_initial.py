@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
     dependencies = [
     ]
 
+    # 데이터 DB에 저장할 필드
     operations = [
         migrations.CreateModel(
             name='Legislator',

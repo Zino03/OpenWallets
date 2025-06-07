@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
         ('ow', '0001_initial'),
     ]
 
+    # 현재가액을 더 해 만든 재산 총액
     operations = [
         migrations.AddField(
             model_name='legislator',

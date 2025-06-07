@@ -14,10 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
 from ow import views
 
+# url 페이지
 urlpatterns = [
     path('', views.main_page, name="main_page"),
     path('members/', views.member_list, name="member_list") ,

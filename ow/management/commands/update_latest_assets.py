@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = 0
         for legislator in Legislator.objects.all():
-            # 최신 연월 조합을 먼저 구함
+            # 최신 연월 조합을 구함
             latest_asset = (
                 Asset.objects
                 .filter(legislator=legislator)
@@ -19,7 +19,7 @@ class Command(BaseCommand):
             if latest_asset:
                 max_year = latest_asset['report_year']
                 max_month = latest_asset['report_month']
-                # 최신 연월의 자산 합계
+                # 최신 연월의 자산 합계를 DB에 저장
                 total = (
                     Asset.objects
                     .filter(legislator=legislator, report_year=max_year, report_month=max_month)
@@ -28,4 +28,3 @@ class Command(BaseCommand):
                 legislator.total_assets = total
                 legislator.save()
                 count += 1
-        self.stdout.write(f"{count}명의 의원 데이터가 갱신.")

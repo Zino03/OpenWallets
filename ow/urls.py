@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-    
+
+# url 페이지
 urlpatterns = [
     path('', views.main_page, name='main_page'),
     path('members/', views.member_list, name="member_list") ,

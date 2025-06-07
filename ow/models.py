@@ -11,15 +11,15 @@ class Legislator(models.Model):
     )
     name = models.CharField(max_length=50, db_index=True, help_text="이름 (API 'name')")
     chi_name = models.CharField(max_length=100, db_index=True) # 한자 이름
-    birth_cd = models.CharField(max_length=10, blank=True, null=True)
-    birth = models.DateField(blank=True, null=True)
+    birth_cd = models.CharField(max_length=10, blank=True, null=True) # 양력, 음력
+    birth = models.DateField(blank=True, null=True) # 생년월일
     position = models.CharField(max_length=100, blank=True, null=True) # 직책
     party = models.CharField(max_length=100, blank=True, null=True) # 정당
     electoral_district = models.CharField(max_length=100, blank=True, null=True) # 선거구
     committee = models.CharField(max_length=100, blank=True, null=True) # 위원회
     latest_age = models.CharField(null=True, blank=True, help_text="활동 회기 (API 'latestAge')") # 예시: 21 또는 22
-    gender = models.CharField(max_length=10, blank=True, null=True, help_text="성별 (API 'gender')")
-    reelected = models.CharField(max_length=50, blank=True, null=True, help_text="재선여부 (API 'reelected')")
+    gender = models.CharField(max_length=10, blank=True, null=True, help_text="성별 (API 'gender')") # 성별
+    reelected = models.CharField(max_length=50, blank=True, null=True, help_text="재선여부 (API 'reelected')") # 재선 여부
     tel = models.CharField(max_length=20, blank=True, null=True) # 전화번호
     email = models.CharField(max_length=100, blank=True, null=True) # 이메일
     history =  models.JSONField(default = list, blank=True, null=True) # 약력
@@ -51,8 +51,7 @@ class Asset(models.Model):
     name = models.CharField(max_length=50, db_index=True, help_text="이름 (API 'name')")
     # API 응답의 'date' 필드 - 연도만 저장하거나 날짜로 저장
     report_year = models.IntegerField(db_index=True, help_text="재산 신고 기준 연도")
-    report_month = models.IntegerField(null = True, help_text="재산 신고 기준 월") # 월 정보도 저장
-
+    report_month = models.IntegerField(null = True, help_text="재산 신고 기준 월")
     asset_type = models.CharField(max_length=100, db_index=True, help_text="재산 종류 (API 'type')")
     kind = models.CharField(max_length=100, blank=True, null=True, help_text="상세 종류 (API 'kind')")
     relation = models.CharField(max_length=50, help_text="소유자와의 관계 (API 'relation')")
@@ -63,9 +62,6 @@ class Asset(models.Model):
     origin_valuation = models.BigIntegerField(null=True, blank=True, help_text="종전가액 (API 'originValuation')")
     increased_amount = models.BigIntegerField(null=True, blank=True, help_text="증가액 (API 'increasedAmount')")
     decreased_amount = models.BigIntegerField(null=True, blank=True, help_text="감소액 (API 'decreasedAmount')")
-    # increased_amount_real = models.BigIntegerField(null=True, blank=True, help_text="실거래 증가액 (API 'increasedAmountForRealTransaction')")
-    # decreased_amount_real = models.BigIntegerField(null=True, blank=True, help_text="실거래 감소액 (API 'decreasedAmountForRealTransaction')")
-    # current_valuation_real = models.BigIntegerField(null=True, blank=True, help_text="실거래 현재가액 (API 'currentValuationForRealTransation')")
 
     # 부가 정보
     created_at = models.DateTimeField(auto_now_add=True)

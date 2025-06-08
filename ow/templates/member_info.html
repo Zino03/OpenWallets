@@ -124,7 +124,7 @@
         <div class="info-card">
           <div style="margin-bottom: 1rem; font-size: 1.25rem; color: #043b85;"><strong>기본 정보</strong></div>
           <div class="info-item"><span class="label">의원명</span> <span class="value">{{ member.name }}</span></div>
-          <div class="info-item"><span class="label">총 재산</span> <span class="value">{{ member.total_assets|intcomma }}</span></div>
+          <div class="info-item"><span class="label">총 재산</span> <span class="value">{{ member.total_assets|intcomma }} (천 원)</span></div>
           <div class="info-item"><span class="label">대수</span> <span class="value">{{ member.latest_age }}</span></div>
           <div class="info-item"><span class="label">한자</span> <span class="value">{{ member.chi_name }}</span></div>
           <div class="info-item"><span class="label">생년월일(음/양)</span> <span class="value">{{ member.birth }} ({{ member.birth_cd }})</span></div>

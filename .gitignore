@@ -1,5 +1,6 @@
-# Created by https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,django
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,django
+# Created by https://www.toptal.com/developers/gitignore/api/python,venv,django
+# Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,django
+
 
 ### Django ###
 *.log
@@ -9,7 +10,6 @@ __pycache__/
 local_settings.py
 media
 venv
-
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.

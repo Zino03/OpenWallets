@@ -1,6 +1,6 @@
 # api 데이터 가져오기
 from django.core.management.base import BaseCommand
-from core.services import save_legislators, save_assets, delete_status, DEFAULT_STATUS_FILE
+from ow.services import save_legislators, save_assets, delete_status, DEFAULT_STATUS_FILE
 
 class Command(BaseCommand):
     help = 'OpenWatch API 데이터 가져오기 및 저장'

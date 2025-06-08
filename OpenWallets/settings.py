@@ -27,8 +27,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '개발용키')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 #render에서 호스트하기 위함
-ALLOWED_HOSTS = ['.onrender.com']
-ALLOWED_HOSTS = ['openwallets.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1',
+                 'localhost',
+                 '.onrender.com',
+                 'openwallets.onrender.com']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -124,7 +126,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

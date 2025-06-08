@@ -1,7 +1,7 @@
 # core/management/commands/export_data.py
 import pandas as pd
 from django.core.management.base import BaseCommand
-from core.models import Legislator, Asset
+from ow.models import Legislator, Asset
 import datetime
 
 class Command(BaseCommand):

@@ -22,12 +22,16 @@ TEMPLATE_DIR = os.path.join(BASE_DIR,'ow/templates') # template 경로 추가
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7(5dib)*zv!!5nhne%*xu%#8rjwkgx-5+kw_5kxsvdelhk(!s-'
-
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '개발용키')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+#render에서 호스트하기 위함
+ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = ['openwallets.onrender.com']
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Application definition
@@ -51,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', #베포 시, static file(CSS, JS 등) 띄우기 위함
 ]
 
 ROOT_URLCONF = 'OpenWallets.urls'

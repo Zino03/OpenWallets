@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<!-- base.html 템플릿을 상속 받음 -->
+{% extends 'base.html' %}
+
+{% block title %}OpenWallets - 이용안내{% endblock %}
+{% block subtitle %}이용안내{% endblock %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide">
+        <p>
+            <h1><b>OpenWallets? 지갑을 열어라!</b></h1>
+            <h2>서비스 명은 국회의원의 지갑이 열린다는 의미로, <b>재산 정보를 국민에게 투명하게 제공한다</b>는 취지로 정했습니다.</h2>
+            <br>
+        </p>
+        <p>
+            <h1><b>재산 정보를 공개하는 이유?</b></h1>
+            <li>부패 방지 및 투명성 확보</li>
+            <li>국민의 알 권리 보장</li>
+            <li>정치적 신뢰 형성</li>
+            <li>법적 의무 이행</li>
+            <br>
+        </p>
+        <p>
+            대한민국 헌법 제46조에는 국회의원에게 <b>청렴의 의무</b>가 있다고 명시되어 있습니다.<br> 
+            청렴은 국회의원이 반드시 갖춰야 할 자세이며, 재산 공개는 그 청렴을 검증하는 수단이 됩니다.<br>
+            따라서 재산 정보를 투명하게 공개하는 것은 국회의원에 대한 국민의 신뢰를 형성하는 데 중요한 역할을 할 수 있습니다<br>
+            <br>
+        </p>
+        <p>
+            이 웹 페이지는 현재(22대) 국회의원의 재산 정보를 이용하여 <b>대시보드</b>를 구성합니다.<br>
+            국회의원의 총 재산을 비교하여 상위 20위까지 보여주며, 지역별, 정당별로 재산 총액을 비교하여 보여줍니다.<br>
+            또한 의원 개인 별로 연도별 재산 변화 추이를 확인할 수 있습니다. (금액의 단위는 천 원입니다.)<br>
+            (20대부터 현재까지의 국회의원의 정보를 제공합니다.)
+            <br>
+        </p>
+    </div>
+</body>
+{% endblock %}
+</html>

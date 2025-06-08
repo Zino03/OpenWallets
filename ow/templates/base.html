@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+
+    /* 사이드바 고정 및 너비 지정 */
+    .sidebar {
+      position: fixed;
+      height: 100%;
+      width: 9rem;
+      background-color: #1e40af;
+      color: white;
+      padding: 1rem;
+    }
+
+    /* 본문 영역을 사이드바 만큼 여백을 줌 */
+    .main-content {
+      margin-left: 11rem;
+      padding: 1.5rem;
+    }
+
+    /* 사이드바 링크 */
+    .sidebar nav a {
+      display: block;
+      margin-bottom: 1rem;
+      color: inherit;
+      text-decoration: none;
+    }
+    .sidebar nav a:hover {
+      color: #93c5fd;
+    }
+
+    /* 본문 위쪽에 표시되는 제목 스타일 */
+    .subtitle {
+      color: #4b5563;
+      font-weight: 600;
+    }
+
+    /* 검색창 form */
+    .search-form {
+      display: flex;
+      width: 33%;
+      gap: 0.5rem;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      border: 1px solid #d1d5db;
+      outline: none;
+      transition: box-shadow 0.2s;
+    }
+    .search-input:focus {
+      box-shadow: 0 0 0 2px #60a5fa;
+    }
+    .search-button {
+      padding: 0.5rem 1rem;
+      background-color: #2563eb;
+      color: white;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+    .search-button:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* 전체 body 배경색 */
+    body {
+      background-color: #f0f4fc; /* Tailwind의 bg-gray-100 */
+    }
+
+    /* 상단 header 영역 (서브타이틀 + 검색창) flex 정렬 */
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <!-- 고정된 사이드바 -->
+    <aside class="sidebar">
+      <h1 class="title">OpenWallets</h1>
+      <!-- 네비게이션 영역 (flex column으로 세로 정렬) -->
+      <nav style="flex: 1; display: flex; flex-direction: column;">
+        <div style="flex: 1;">
+            <a href="{% url 'main_page' %}">대시보드</a>
+            <a href="{% url 'member_list' %}">의원  목록</a>
+            <a href="{% url 'api_page' %}">API</a>
+            <a href="{% url 'guide_page' %}">이용안내</a>
+        </div>
+        <div style="font-size: 0.9rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+            기준 날짜: 2025-04-07<br>
+            대수: 22대<br>
+            금액 단위: 천 원
+        </div>
+      </nav>
+    </aside>
+
+    <!-- 본문 영역 -->
+    <main class="main-content">
+      <div class="header-flex">
+        <!-- 서브타이틀 영역 + 검색창 flex 배치 -->
+        <div class="subtitle">{% block subtitle %}{% endblock %}</div>
+        <!-- 검색창 form -->
+        <!-- GET 방식으로 member_list로 요청-->
+        <form method="get" action="{% url 'member_list' %}" class="search-form">
+          <input
+            type="text"
+            name="q" 
+            value="{{ query }}"
+            placeholder="의원명 입력"
+            class="search-input"
+            autocomplete="off"
+          />
+          <button type="submit" class="search-button">검색</button>
+        </form>
+      </div>
+      {% block content %}
+      <!-- 하위 템플릿에서 본문 내용이 들어가는 영역 -->
+      {% endblock %}
+    </main>
+  </div>
+</body>
+</html>

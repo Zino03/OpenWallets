@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<!-- base.html 템플릿을 상속 받음 -->
+{% extends 'base.html' %}
+
+{% block title %}OpenWallets - 대시보드{% endblock %}
+{% block subtitle %}재산 공개 대시보드{% endblock %}
+{% block content %}
+{% load humanize %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #002c6a;
+        }
+
+        /* 카드 스타일 */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: auto;
+            height: auto;
+        }
+        /* 파란 배경의 card-a (서브 카드용) */
+        .card-a{
+            background: #E1F2FF;
+            border-radius: 10px;
+            padding: 10px;  
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1 1 auto;
+            min-width: 0;
+            width: auto;
+            height: 100%;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+
+        /* 상단 슬라이더 영역 */
+        .slider-wrapper {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 슬라이더 내 카드 뷰포트 */
+        .slider-viewport {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden; /* 넘치는 부분 숨김 */
+            /* slider-page는 flex 컨테이너 */
+        }
+        /* 슬라이더 개별 카드 */
+        .slide-card {
+            flex: 1 1 0;
+            border-radius: 20px;
+            margin: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        /* 정렬 효과 표현*/
+        .slide-card.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .slide-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        /* 슬라이드 좌/우 이동 버튼 */
+        .slide-btn {
+            background: #043b85;
+            color: white;
+            font-size: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* SVG map 영역 기본 색상 */
+        .region_name path,
+        .region_name polygon,
+        .region_name .st0 {
+            fill: #cccccc;
+            stroke: #ffffff;
+            stroke-width: 1;
+            cursor: pointer;
+            transition: fill 0.3s;
+        }
+        /* hover 시 강조 색 */
+        .region_name:hover path,
+        .region_name:hover polygon,
+        .region_name:hover .st0 {
+            fill: #ffcc00;
+        }
+        /* 선택 시 강조 색 */
+        .region_name.selected path,
+        .region_name.selected polygon,
+        .region_name.selected .st0 {
+            fill: #ff6600;
+        }
+        /* chart.js canvas 기본 크기 */
+        canvas {
+            max-width: 100%;
+            height: 100%;
+        }
+
+        /* flex 레이아웃 컨테이너 */
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            flex-decoration: row;
+            align-items: stretch;
+            min-width: 0;
+            height: auto;
+        }
+        /* column 형식 레이아웃 */
+        .column{
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            margin-bottom: 5px;
+        }
+
+        /* 원형 name card */
+        .name-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;  /* 원하는 높이로 조절 */
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;  /* 글자 크게 */
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        /* 지역/정당별 Top5 의원 목록 item */
+        .top5-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        /* 정렬 효과 표현*/
+        .top5-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Top5 순위 표시용 */
+        .top5-rank {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #043b85;
+        }
+        /* Top5 의원 정보 텍스트 */
+        .top5-info {
+            flex: 1;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <!-- 국회의원 재산 상위 TOP20 슬라이더 -->
+        <div class="card">
+            <h3>대한민국 국회의원 재산 상위 TOP20</h3>
+            <div class="slider-wrapper">
+                <!-- 이전 버튼 -->
+                <button class="slide-btn" id="prevBtn">&#10094;</button>
+                <!-- 슬라이드 애니메이션 용 뷰포트 역할 (내부에 여러 개의 슬라이드 페이지) -->
+                <div class="slider-viewport">
+                    <!-- 20명을 4명씩 나눠준 chunked_members -->
+                    {% for page in chunked_members %}
+                    <!-- 첫 번째 페이지만 보여줌 -->
+                    <div class="slider-page" style="width: 100%; display: {% if forloop.first %}flex{% else %}none{% endif %};">
+                        {% for item in page %}
+                            <!-- 각 슬라이드 카드는 이름, 정당, 재산을 포함하고 배경은 해당 정당의 색, 클릭 시 상세 페이지로 이동 -->
+                            <div class="slide-card" data-party="{{ item.member.party }}" onclick="window.location='{% url 'member_info' item.member.member_id %}';" style="cursor: pointer;">
+                                <strong>{{ item.rank }}. {{ item.member.name }}<br></strong>
+                                정당: {{item.member.party}}<br>
+                                총 재산: {{ item.member.total_assets|intcomma }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- 다음 버튼 -->
+                <button class="slide-btn" id="nextBtn">&#10095;</button>
+            </div>
+        </div>
+    <!-- 슬라이더 동작용 JS -->
+    <script>
+        // DOM에서 슬라이더 페이지를 모두 가져옴
+        const pages = document.querySelectorAll('.slider-page');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        let currentPage = 0;
+        const maxPage = pages.length - 1;
+
+        // 현재 페이지에 해당하는 의원 목록을 보여줌 (index와일치하는 페이지만 flex, 나머지는 숨김 처리)
+        function showPage(index) {
+            pages.forEach((page, i) => {
+                if (i === index) {
+                    page.style.display = 'flex';
+                    // 슬라이드 카드들에 show 클래스 추가 (애니메이션)
+                    const cards = page.querySelectorAll('.slide-card');
+                    cards.forEach((card, idx) => {
+                        card.classList.remove('show'); // 먼저 초기화
+                        setTimeout(() => {
+                            card.classList.add('show');
+                        }, idx * 100); // 순차 등장 (100ms 딜레이)
+                    });
+                } else {
+                    page.style.display = 'none';
+                }
+            });
+        }
+
+        // 페이지 이동
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < maxPage) {
+                // currentPage 값 증가 후 showPage 호출
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 0) {
+                // currentPage 값 감소 후 showPage 호출
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+    </script>
+    <!-- Chart.js 라이브러리 import -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- 지역별 카드 -->
+        <div class="card">
+            <!-- 카드 상단: 제목 + 드롭다운 + 총 재산-->
+            <div class="flex-container">
+                <h3>지역별 총 재산</h3>
+                <div class="column" style="gap: 3px;">
+                    <!-- 지역 선택 드롭다운 -->
+                    <select id="regionSelect">
+                        <option value="">-- 지역 선택 --</option>
+                        {% for region in regions %}
+                        <!-- 기본값으로 '충북' 선택됨 -->
+                        <option value="{{ region }}"{% if region == "충북" %} selected{% endif %}>{{ region }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="regionAssetDisplay" style="font-weight: bold;">
+                        <!-- 선택한 지역 자산 금액 -->
+                    </div>
+                </div>
+                <div style="margin-left: auto; font-size: 1.5rem; font-weight: bold;">Open by Region</div>
+            </div>
+
+            <!-- 카드 하단: flex 레이아웃으로 구성 -->
+            <div class="flex-container">
+                <div class="column">
+                    <div class="card-a" style="flex: 0.9;">
+                        <div id="regionTop5" >
+                            <!-- 선택 지역 상위 5명 의원 목록 -->
+                        </div>
+                    </div>
+                    <!-- 선택 지역명 강조 원형 카드 -->
+                    <div class="name-card" id="regionNameCard">
+                        <div id="regionNameDisplay">충북</div>
+                    </div>
+                </div>
+                <!-- 지역별 Pie Chart 영역 -->
+                <div class="card-a" style="flex: 1.5; height:500px;">
+                    <strong>지역별 재산 비율</strong>
+                    <canvas id="regionPieChart"></canvas>
+                    <script>
+                        const regionCtx = document.getElementById('regionPieChart').getContext('2d');
+                        const regionPieChart = new Chart(regionCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: {{ regions|safe }},
+                                datasets: [{
+                                    label: '지역별 재산 총합',
+                                    data: {{ region_asset_values|safe }},
+                                    backgroundColor: ['#4D9FE6', '#FF5C5C', '#66DA8C', '#FFD54F', '#CE93D8',
+                                                    '#F48FB1', '#FFAB91', '#4DB6AC', '#A1887F', '#90A4AE',  
+                                                    '#EF9A9A', '#7986CB', '#F06292', '#4DD0E1', '#AED581', 
+                                                    '#FF8A65', '#BA68C8'],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                layout: {
+                                    padding: 30               
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 10
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const value = context.raw;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+                <!-- 대한민국 SVG 지도 영역 -->
+                <div class="card-a" style="flex: 1.5;">
+                    <div id="map-container" style="width:100%">
+                        <strong>대한민국 지도</strong>
+                        {% include 'svg/korea_map.svg' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정당별 카드 -->
+        <div class="card">
+            <!-- 카드 상단: 제목 + 드롭다운 + 총 재산 -->
+            <div class="flex-container">
+                <h3>정당별 총 자산</h3>
+                <div class="column" style="gap: 3px;"> 
+                    <!-- 정당 선택 드롭다운 -->
+                    <select id="partySelect">
+                        <option value="">-- 정당 선택 --</option>
+                        {% for party in parties %}
+                        <!-- 기본값으로 '국민의힘' 선택됨 -->
+                        <option value="{{ party }}"{% if party == "국민의힘" %} selected{% endif %}>{{ party }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="partyAssetDisplay" style="font-weight:bold;">
+                        <!-- 선택한 정당 자산 금액 -->
+                    </div>
+                </div>
+                <div style="margin-left: auto; font-size: 1.5rem; font-weight: bold;">Open by Political Party</div>
+            </div>
+
+            <!-- 카드 하단: flex 구성 -->
+            <div class="flex-container">
+                <div class="column">
+                    <div class="card-a" style="flex:1;">
+                        <div id="partyTop5">
+                            <!-- 선택 정당 상위 5명 의원 목록 -->
+                        </div>
+                    </div>
+                    <!-- 선택 정당명 강조 원형 카드 -->
+                    <div class="name-card" id="partyNameCard">
+                        <div id="partyNameDisplay">국민의힘</div>
+                    </div>
+                </div>
+                <!-- 정당별 Pie Chart 영역 -->
+                <div class="card-a" style="flex:3; height:500px;">
+                    <strong>정당별 재산 비율</strong>
+                    <canvas id="partyPieChart"></canvas>
+                    <script>
+                        const partyCtx = document.getElementById('partyPieChart').getContext('2d');
+                        const partyPieChart = new Chart(partyCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: {{ parties|safe }},
+                                datasets: [{
+                                    label: '정당별 재산 총합',
+                                    data: {{ party_asset_values|safe }},
+                                    backgroundColor: [
+                                        '#D74F00', '#FF1D1D', '#24FFD3', '#2400C3', '#9966FF', '#FFA83E', 
+                                        '#45BABD', '#FBC700', '#FFED00', '#0958A7', '#06275E', '#D6001C'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                layout: {
+                                    padding: 30,               
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 20
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const value = context.raw;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <strong>Comming Soon...</strong>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 상단 슬라이더 실행
+            showPage(0)
+            // 데이터 JSON화 (views.py에서 넘긴 context 사용)
+            const regionAssets = {{ region_assets|safe }};
+            const partyAssets = {{ party_assets|safe }};
+            const regionTop5Data = {{ region_top5|safe }};
+            const partyTop5Data = {{ party_top5|safe }};
+            
+            // DOM 요소 참조
+            const regionSelect = document.getElementById('regionSelect');
+            const regionDisplay = document.getElementById('regionAssetDisplay');
+            const regionTop5Div = document.getElementById('regionTop5');
+
+            const partySelect = document.getElementById('partySelect');
+            const partyDisplay = document.getElementById('partyAssetDisplay');
+            const partyTop5Div = document.getElementById('partyTop5');
+
+            // Top5 렌더링 함수
+            function renderTop5(list, container, title_name) {
+                // 제목과 함께 html 생성
+                let html = `<div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">${title_name} 재산 상위 TOP5</div>`;
+                html += '<div class="top5-list">';
+                list.forEach((item, index) => {
+                    // TOP5 데이터를 반복적으로 출력, 클릭 시 의원 상세 페이지 이동, 순위 + 이름 + 재산 표시
+                    html += `
+                        <div class="top5-item" onclick="window.location='/members/${item.member_id}/';" style="cursor: pointer;">
+                            <div class="top5-rank">${index + 1}</div>
+                            <div class="top5-info">
+                                ${item.name}<br>
+                                총 재산: ${item.total_assets.toLocaleString()}
+                            </div>
+                        </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html; // container 영역에 출력
+
+                // 순차적으로 올라오는 효과
+                const items = container.querySelectorAll('.top5-item');
+                items.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('show');
+                    }, index * 100); // 순차적으로 delay (index * 100ms)
+                });
+            }
+
+            const regionColorMap = {
+                '강원': '#4D9FE6',
+                '경기': '#FF5C5C',
+                '경남': '#66DA8C',
+                '경북': '#FFD54F',
+                '광주': '#CE93D8',
+                '대구': '#F48FB1',
+                '대전': '#FFAB91',
+                '부산': '#4DB6AC',
+                '서울': '#A1887F',
+                '세종': '#90A4AE',
+                '울산': '#EF9A9A',
+                '인천': '#7986CB',
+                '전남': '#F06292',
+                '전북': '#4DD0E1',
+                '제주': '#AED581',
+                '충남': '#FF8A65',
+                '충북': '#BA68C8',
+            };
+
+            // 지역 선택 드롭다운 이벤트
+            regionSelect.addEventListener('change', () => {
+                // 대한민국 svg 지도를 가져옴 
+                const mapContainer = document.getElementById('map-container');
+                const selected = regionSelect.value; // 선택한 지역 저장
+                regionPieChart.setActiveElements([]); // Chart 초기화
+                
+                // 지도에서 selected class 처리
+                mapContainer.querySelectorAll('.region_name').forEach(el => {
+                    // 모든 지역에서 .selected 제거
+                    el.classList.remove('selected');
+                    // 선택한 지역에만 .selected 추가 -> 색상 강조
+                    if (el.dataset.name === selected) {
+                        el.classList.add('selected');
+                    }
+                }); 
+
+                // 선택한 지역의 정보 업데이트
+                if (selected && regionAssets[selected]) {
+                    // 선택한 지역명 + 총 재산 금액을 표시 
+                    regionDisplay.textContent = `${selected} 총 재산: ${regionAssets[selected].toLocaleString()}`;
+                    // 상위 의원 TOP5 목록 출력
+                    renderTop5(regionTop5Data[selected], regionTop5Div, selected);
+
+                    // name-card의 내부 지역명, 배경색 업데이트
+                    document.getElementById('regionNameDisplay').textContent = selected;
+                    document.getElementById('regionNameCard').style.backgroundColor = regionColorMap[selected] || '#888888';
+
+                    // 선택된 지역이 몇 번째 인덱스인지 찾기 -> 강조 효과를 줄 때 필요
+                    const selectedRegionIndex = regionPieChart.data.labels.indexOf(selected);
+
+                    // setActiveElements + hoverOffset 조정
+                    regionPieChart.setActiveElements([{ datasetIndex: 0, index: selectedRegionIndex }]);
+                    regionPieChart.options.elements.arc.hoverOffset = 20;  // 일반 hover는 작게
+
+                    // 선택된 항목은 주황색, 5px 굵기의 테두리 설정
+                    regionPieChart.data.datasets[0].borderColor = regionPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedRegionIndex ? '#ff6600' : '#ffffff';  // 나머지는 흰색 (투명 효과)
+                    });
+                    regionPieChart.data.datasets[0].borderWidth = regionPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedRegionIndex ? 5 : 1; 
+                    });
+
+                    // 화면에 반영
+                    regionPieChart.update();
+                } else {
+                    regionDisplay.textContent = '';
+                    regionTop5Div.innerHTML = '';
+                }
+            });
+
+            const partyColorMap = {
+                '개혁신당': '#D74F00',
+                '국민의힘': '#FF1D1D',
+                '기본소득당': '#24FFD3',
+                '더불어민주당': '#2400C3',
+                '무소속': '#9966FF',
+                '사회민주당': '#FFA83E',
+                '새로운미래': '#45BABD',
+                '열린민주당': '#FBC700',
+                '자유통일당': '#FFED00',
+                '정의당': '#0958A7',
+                '조국혁신당': '#06275E',
+                '진보당': '#D6001C',
+            };
+
+            // HEX → RGBA 변환 함수 (투명도 적용을 위함)
+            function hexToRgba(hex, alpha) {
+                hex = hex.replace('#', '');
+                if (hex.length === 3) {
+                    hex = hex.split('').map(char => char + char).join('');
+                }
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+
+            // 슬라이더 카드 색상 적용
+            document.querySelectorAll('.slide-card').forEach(card => {
+                const party = card.getAttribute('data-party');
+                const hexColor = partyColorMap[party];
+                // 정당 색상 적용
+                if (hexColor) {
+                    // 반투명 배경색 적용
+                    card.style.backgroundColor = hexToRgba(hexColor, 0.5);
+                    card.style.color = 'black';
+                } else {
+                    card.style.backgroundColor = 'rgba(240,240,240,0.85)';
+                    card.style.color = 'black';
+                }
+            });
+
+            // 정당 선택 드롭다운 이벤트
+            partySelect.addEventListener('change', () => {
+                const selected = partySelect.value; // 선택한 정당 저장
+                partyPieChart.setActiveElements([]); // Chart 초기화
+                
+                if (selected && partyAssets[selected]) {
+                    // 선택한 정당명 + 총 재산 금액을 표시 
+                    partyDisplay.textContent = `${selected} 총 재산: ${partyAssets[selected].toLocaleString()}`;
+                    // 상위 의원 TOP5 목록 출력
+                    renderTop5(partyTop5Data[selected], partyTop5Div, selected);
+
+                    // name-card의 내부 정당명, 정당색 업데이트
+                    document.getElementById('partyNameDisplay').textContent = selected;
+                    document.getElementById('partyNameCard').style.backgroundColor = partyColorMap[selected] || '#888888';
+
+                    // 선택된 정당이 몇 번째 인덱스인지 찾기 -> 강조 효과를 줄 때 필요
+                    const selectedPartyIndex = partyPieChart.data.labels.indexOf(selected);
+                    // setActiveElements + hoverOffset 조정
+                    partyPieChart.setActiveElements([{ datasetIndex: 0, index: selectedPartyIndex }]);
+                    partyPieChart.options.elements.arc.hoverOffset = 20;  // 일반 hover는 작게
+
+                    // 선택된 항목은 주황색, 5px 굵기의 테두리 설정
+                    partyPieChart.data.datasets[0].borderColor = partyPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedPartyIndex ? '#ff6600' : '#ffffff';  // 나머지는 흰색 (투명 효과)
+                    });
+                    partyPieChart.data.datasets[0].borderWidth = partyPieChart.data.labels.map((label, idx) => {
+                        return idx === selectedPartyIndex ? 5 : 1;
+                    });
+
+                    // 화면에 반영
+                    partyPieChart.update();
+                } else {
+                    partyDisplay.textContent = '';
+                    partyTop4Div.innerHTML = '';
+                }
+            });
+
+            // 페이지 처음 로드 시 자동으로 지역/정당 드롭다운 변경 이벤트 (초기 설정)
+            regionSelect.dispatchEvent(new Event('change'));
+            partySelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+    </div>
+</body>
+{% endblock %}
+</html>

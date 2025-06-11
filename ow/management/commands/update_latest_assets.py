@@ -23,8 +23,9 @@ class Command(BaseCommand):
                 total = (
                     Asset.objects
                     .filter(legislator=legislator, report_year=max_year, report_month=max_month)
+                    .exclude(asset_type='채무')
+                    .exclude(asset_type='비영리법인에 출연한 재산')
                     .aggregate(sum=Sum('current_valuation'))['sum'] or 0
                 )
                 legislator.total_assets = total
                 legislator.save()
-                count += 1
